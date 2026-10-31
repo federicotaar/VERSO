@@ -6,6 +6,5 @@ contextBridge.exposeInMainWorld('verso', {
   onTick: cb => ipcRenderer.on('tick', (_e, t) => cb(t)),
   getSettings: () => ipcRenderer.invoke('get-settings'),
   getState: () => ipcRenderer.invoke('get-state'),
-  setTokens: t => ipcRenderer.invoke('set-tokens', t),
   setColors: c => ipcRenderer.invoke('set-colors', c)
 });
