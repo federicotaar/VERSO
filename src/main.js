@@ -3,7 +3,8 @@
 const { app, BrowserWindow, Tray, Menu, nativeImage, ipcMain, powerSaveBlocker, globalShortcut, screen, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const nowplaying = require('./nowplaying');
+const DEMO = !!process.env.VERSO_DEMO;
+const nowplaying = DEMO ? require('./demo') : require('./nowplaying');
 const { getLyrics } = require('./lyrics');
 
 const settingsPath = () => path.join(app.getPath('userData'), 'settings.json');
@@ -114,7 +115,8 @@ async function pollLoop() {
   if (key && key !== lastTrackKey) {
     lastTrackKey = key; lastLyricsSent = null;
     if (overlay) overlay.webContents.send('track', { track: r.track });
-    const lyrics = await getLyrics(r.track, settings).catch(() => null);
+    const lyrics = DEMO ? require('./demo').demoLyrics()
+                        : await getLyrics(r.track, settings).catch(() => null);
     lastLyricsSent = lyrics;
     if (overlay) overlay.webContents.send('lyrics', { track: r.track, lyrics });
   }
@@ -133,6 +135,12 @@ let timer = null;
 function schedule(ms) { clearTimeout(timer); timer = setTimeout(pollLoop, ms); }
 
 ipcMain.handle('get-settings', () => publicSettings());
+ipcMain.handle('get-state', () => ({
+  settings: publicSettings(),
+  track: lastState.track,
+  lyrics: lastLyricsSent,
+  tick: { playing: lastState.playing, positionMs: lastState.positionMs, positionAt: lastState.at, track: lastState.track }
+}));
 ipcMain.handle('set-tokens', (_e, t) => {
   settings.appleUserToken = t.userToken || '';
   settings.appleDevToken = t.devToken || '';
@@ -159,6 +167,15 @@ app.whenReady().then(() => {
     setMode(modes[(modes.indexOf(settings.mode) + 1) % modes.length]);
   });
   pollLoop();
+  if (process.env.VERSO_SHOT) {
+    setTimeout(async () => {
+      try {
+        const img = await overlay.webContents.capturePage();
+        require('fs').writeFileSync(process.env.VERSO_SHOT, img.toPNG());
+      } catch (e) { console.error('shot failed', e); }
+      app.exit(0);
+    }, parseInt(process.env.VERSO_SHOT_MS || '9000', 10));
+  }
 });
 
 app.on('will-quit', () => {
