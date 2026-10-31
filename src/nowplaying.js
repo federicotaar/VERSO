@@ -1,14 +1,21 @@
 // Now-playing source: reads the OS media session (GSMTC on Windows, MPRIS on Linux)
 // through now-playing-media's prebuilt Node-API binaries.
-let npmApi = null;
+// The package is pure ESM and Electron 33 (Node 20) cannot require() ESM,
+// so it is loaded with a lazy dynamic import().
+let npmApiPromise = null;
 let loadError = null;
-try {
-  npmApi = require('now-playing-media');
-} catch (e) {
-  loadError = e;
+
+function load() {
+  if (!npmApiPromise) {
+    npmApiPromise = import('now-playing-media')
+      .then(m => (m && m.default) || m)
+      .catch(e => { loadError = e; return null; });
+  }
+  return npmApiPromise;
 }
 
 async function poll() {
+  const npmApi = await load();
   if (!npmApi) return { ok: false, error: String(loadError || 'now-playing-media unavailable') };
   try {
     const s = await npmApi.current();
