@@ -119,7 +119,7 @@ async function pollLoop() {
       } catch (e) {
         lerr = true;
         lyricsFailures++;
-        if (e && e.retryAfterMs) lyricsRetryAfterMs = e.retryAfterMs;
+        lyricsRetryAfterMs = (e && e.retryAfterMs) || 0;
       }
     }
     lastLyricsSent = lyrics; lastLyricsError = lerr; lastLyricsAttempt = Date.now();
