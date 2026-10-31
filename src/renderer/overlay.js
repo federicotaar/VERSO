@@ -7,7 +7,7 @@ const npTitle = document.getElementById('np-title');
 const npArtist = document.getElementById('np-artist');
 const lyrSource = document.getElementById('lyr-source');
 
-let settings = { mode: 'ship', colors: { lyric: '#9fb4ff', highlight: '#fff', secondary: '#5a6b9e' }, colorMode: 'auto' };
+let settings = { mode: 'ship', colors: { lyric: '#aab4c8', highlight: '#ffffff', secondary: '#6b7688' }, colorMode: 'auto' };
 let model = null;           // { lines, source, wordLevel, estimated, unsynced }
 let currentTrack = null;
 let playback = { playing: false, positionMs: 0, positionAt: Date.now() };
@@ -116,8 +116,11 @@ function paletteFromArt(imgEl) {
       if (score > bestScore) { bestScore = score; best = [r, g, b]; }
       if (lum > 150 && lum > brightScore) { brightScore = lum; bright = [r, g, b]; }
     }
+    // mute the dominant color toward its own luminance so the palette stays restrained
+    const avg = (best[0] + best[1] + best[2]) / 3;
+    const muted = best.map(v => v * 0.75 + avg * 0.25);
     const toHex = a => '#' + a.map(v => Math.round(Math.min(255, v)).toString(16).padStart(2, '0')).join('');
-    return { lyric: toHex(best.map((v, i) => v * 0.8 + 60)), highlight: toHex(bright), secondary: toHex(best.map(v => v * 0.5)) };
+    return { lyric: toHex(muted.map(v => v * 0.8 + 62)), highlight: toHex(bright), secondary: toHex(muted.map(v => v * 0.45 + 10)) };
   } catch { return null; }
 }
 
