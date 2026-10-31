@@ -1,7 +1,7 @@
 const assert = require('assert');
 const { parseLrc } = require('../src/lyrics/lrcparse');
 const { estimateWords } = require('../src/lyrics/estimate');
-const { parseTtml } = require('../src/lyrics/apple');
+const { parseTtml } = require('../src/lyrics/ttml');
 
 // standard LRC
 const lrc = '[00:10.00]hello world\n[00:14.50]second line here\n[00:20.00]third';
