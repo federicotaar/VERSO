@@ -1,0 +1,49 @@
+:root {
+  --lyric: #9fb4ff;
+  --highlight: #ffffff;
+  --secondary: #5a6b9e;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: transparent;
+  font-family: -apple-system, 'Segoe UI', 'Ubuntu', system-ui, sans-serif; }
+#stage { position: relative; width: 100%; height: 100%;
+  background: rgba(10, 12, 24, 0.55); border-radius: 18px; backdrop-filter: blur(14px);
+  display: flex; flex-direction: column; overflow: hidden; }
+
+#nowplaying { display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.08); }
+#art { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; background: #222; }
+#np-title { color: var(--highlight); font-size: 13px; font-weight: 700; }
+#np-artist { color: var(--secondary); font-size: 12px; }
+#lyr-source { margin-left: auto; font-size: 10px; color: var(--secondary); text-align: right; }
+
+#wall { position: relative; flex: 1; perspective: 700px; overflow: hidden; }
+#empty { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  color: var(--secondary); font-size: 14px; }
+
+.line { position: absolute; left: 50%; top: 50%; width: 90%; text-align: center;
+  transform: translate(-50%, -50%); transition: transform .45s cubic-bezier(.2,.8,.2,1), opacity .45s, filter .45s;
+  font-weight: 800; line-height: 1.25; white-space: pre-wrap; }
+.word { position: relative; display: inline-block; color: var(--lyric); }
+.word .fill { position: absolute; left: 0; top: 0; width: 0%; overflow: hidden;
+  color: var(--highlight); white-space: pre-wrap; }
+.word.sung { color: var(--highlight); }
+.word .icon { display: block; font-size: 0.55em; font-weight: 400; }
+
+/* ship: 3D drifting wall */
+.mode-ship .line { font-size: 26px; }
+
+/* fisheye: convex magnification around the active line */
+.mode-fisheye .line { font-size: 24px; }
+.mode-fisheye .line.current { font-size: 34px; }
+
+/* visual: icons beside words */
+.mode-visual .line { font-size: 24px; }
+
+/* plain karaoke */
+.mode-plain .line { font-size: 28px; }
+
+.line.far { opacity: 0; pointer-events: none; }
+.line.past { opacity: .25; }
+.line.current { opacity: 1; }
+.line.next { opacity: .55; }
