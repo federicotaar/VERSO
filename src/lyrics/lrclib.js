@@ -7,9 +7,17 @@ function getJson(url) {
     const req = https.get(url, { headers: { 'User-Agent': 'VERSO v0.1 (personal lyrics overlay)' } }, res => {
       if (res.statusCode === 404) { res.resume(); return resolve(null); }
       if (res.statusCode !== 200) {
-        const ra = parseInt(res.headers['retry-after'] || '', 10);
         const err = new Error('HTTP ' + res.statusCode);
-        if (!isNaN(ra)) err.retryAfterMs = Math.min(ra * 1000, 300000);
+        const ra = res.headers['retry-after'];
+        if (ra) {
+          // Retry-After is a minimum wait set by the server (delta-seconds or HTTP-date); never shorten it
+          const secs = parseInt(ra, 10);
+          if (!isNaN(secs)) err.retryAfterMs = Math.max(0, secs * 1000);
+          else {
+            const t = Date.parse(ra);
+            if (!isNaN(t)) err.retryAfterMs = Math.max(0, t - Date.now());
+          }
+        }
         res.resume(); return reject(err);
       }
       let data = '';
