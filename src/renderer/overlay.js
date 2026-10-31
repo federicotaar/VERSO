@@ -10,6 +10,12 @@ const lyrSource = document.getElementById('lyr-source');
 let settings = { mode: 'ship', colors: { lyric: '#aab4c8', highlight: '#ffffff', secondary: '#6b7688' }, colorMode: 'auto' };
 let model = null;           // { lines, source, wordLevel, estimated, unsynced }
 let currentTrack = null;
+let lyricsFetchError = false;
+
+function emptyText() {
+  if (!currentTrack) return 'VERSO - play something in Spotify or your music app';
+  return lyricsFetchError ? 'Lyrics service unreachable - retrying' : 'No synced lyrics for this track';
+}
 let playback = { playing: false, positionMs: 0, positionAt: Date.now() };
 let lineEls = [];
 
@@ -23,7 +29,7 @@ function applyMode() { stage.className = 'mode-' + settings.mode; render(); }
 function buildDom() {
   wall.innerHTML = ''; lineEls = [];
   if (!model || !model.lines || !model.lines.length) {
-    emptyEl.textContent = currentTrack ? 'No synced lyrics for this track' : 'VERSO - play something in Spotify or your music app';
+    emptyEl.textContent = emptyText();
     emptyEl.style.display = 'flex'; return;
   }
   emptyEl.style.display = 'none';
@@ -138,7 +144,7 @@ async function resolveArt(track) {
 function applyTrack({ track }) {
   currentTrack = track;
   if (!model || !model.lines || !model.lines.length) {
-    emptyEl.textContent = track ? 'No synced lyrics for this track' : 'VERSO - play something in Spotify or your music app';
+    emptyEl.textContent = emptyText();
   }
   npTitle.textContent = track.title || '';
   npArtist.textContent = track.artist || '';
@@ -160,14 +166,15 @@ function applyTrack({ track }) {
   });
 }
 
-function applyLyrics({ lyrics }) {
+function applyLyrics({ lyrics, error }) {
+  lyricsFetchError = !!error;
   model = lyrics;
   if (lyrics) {
     lyrSource.textContent = lyrics.wordLevel ? 'word-by-word · ' + lyrics.source
       : lyrics.unsynced ? 'unsynced · ' + lyrics.source
       : 'line-synced (words estimated) · ' + lyrics.source;
   } else {
-    lyrSource.textContent = 'no lyrics found';
+    lyrSource.textContent = lyricsFetchError ? 'lyrics service unreachable' : 'no lyrics found';
   }
   buildDom();
 }
@@ -176,7 +183,7 @@ if (window.verso) {
   window.verso.getState().then(st => {
     settings = st.settings; applyColors(st.settings.colors); applyMode();
     if (st.track) applyTrack({ track: st.track });
-    if (st.lyrics) applyLyrics({ lyrics: st.lyrics });
+    if (st.lyrics || st.lyricsError) applyLyrics({ lyrics: st.lyrics, error: st.lyricsError });
     if (st.tick) playback = st.tick;
   });
   window.verso.onSettings(s => { settings = s; applyColors(s.colors); applyMode(); });
