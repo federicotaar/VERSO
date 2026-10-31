@@ -6,7 +6,7 @@ const { estimateWords } = require('./estimate');
 const lrclib = require('./lrclib');
 
 async function getLyrics(track, settings) {
-  try {
+  {
     const r = await lrclib.fetchLyrics(track);
     if (r && r.kind === 'lrc') {
       const model = parseLrc(r.lrc);
@@ -17,7 +17,7 @@ async function getLyrics(track, settings) {
       return { lines: r.plain.split('\n').filter(Boolean).map(t => ({ startMs: 0, endMs: 0, text: t, words: null })),
                source: r.source, wordLevel: false, unsynced: true };
     }
-  } catch (e) { /* no lyrics */ }
+  }
   return null;
 }
 
