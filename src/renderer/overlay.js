@@ -9,6 +9,7 @@ const lyrSource = document.getElementById('lyr-source');
 
 let settings = { mode: 'ship', colors: { lyric: '#9fb4ff', highlight: '#fff', secondary: '#5a6b9e' }, colorMode: 'auto' };
 let model = null;           // { lines, source, wordLevel, estimated, unsynced }
+let currentTrack = null;
 let playback = { playing: false, positionMs: 0, positionAt: Date.now() };
 let lineEls = [];
 
@@ -21,7 +22,10 @@ function applyMode() { stage.className = 'mode-' + settings.mode; render(); }
 
 function buildDom() {
   wall.innerHTML = ''; lineEls = [];
-  if (!model || !model.lines || !model.lines.length) { emptyEl.style.display = 'flex'; return; }
+  if (!model || !model.lines || !model.lines.length) {
+    emptyEl.textContent = currentTrack ? 'No synced lyrics for this track' : 'VERSO - play something in Spotify or your music app';
+    emptyEl.style.display = 'flex'; return;
+  }
   emptyEl.style.display = 'none';
   const frag = document.createDocumentFragment();
   model.lines.forEach((line) => {
@@ -129,6 +133,10 @@ async function resolveArt(track) {
 }
 
 function applyTrack({ track }) {
+  currentTrack = track;
+  if (!model || !model.lines || !model.lines.length) {
+    emptyEl.textContent = track ? 'No synced lyrics for this track' : 'VERSO - play something in Spotify or your music app';
+  }
   npTitle.textContent = track.title || '';
   npArtist.textContent = track.artist || '';
   lyrSource.textContent = '';
