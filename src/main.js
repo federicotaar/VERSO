@@ -20,10 +20,7 @@ const DEFAULTS = {
   colors: { lyric: '#9fb4ff', highlight: '#ffffff', secondary: '#5a6b9e' },
   clickThrough: true,
   keepAwake: true,
-  showWhenPaused: true,
-  appleUserToken: '',
-  appleDevToken: '',
-  appleStorefront: 'it'
+  showWhenPaused: true
 };
 
 let settings = loadSettings();
@@ -92,10 +89,7 @@ function toggleFullscreen() {
 function pushSettings() {
   if (overlay) overlay.webContents.send('settings', publicSettings());
 }
-function publicSettings() {
-  const { appleUserToken, appleDevToken, ...rest } = settings;
-  return { ...rest, appleWordLevel: Boolean(appleUserToken && appleDevToken) };
-}
+function publicSettings() { return { ...settings }; }
 
 function trackKey(t) { return t ? `${t.title}|${t.artist}|${t.album}` : null; }
 
@@ -141,13 +135,6 @@ ipcMain.handle('get-state', () => ({
   lyrics: lastLyricsSent,
   tick: { playing: lastState.playing, positionMs: lastState.positionMs, positionAt: lastState.at, track: lastState.track }
 }));
-ipcMain.handle('set-tokens', (_e, t) => {
-  settings.appleUserToken = t.userToken || '';
-  settings.appleDevToken = t.devToken || '';
-  settings.appleStorefront = t.storefront || 'it';
-  saveSettings(settings); lastTrackKey = null; // refetch lyrics with word level
-  return publicSettings();
-});
 ipcMain.handle('set-colors', (_e, colors) => {
   settings.colors = { ...settings.colors, ...colors }; settings.colorMode = 'manual';
   saveSettings(settings); pushSettings(); rebuildTray(); return publicSettings();
