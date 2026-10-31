@@ -15,8 +15,7 @@ Inspired by the concept of paid lock-screen lyric apps; no code, assets, or data
 
 | Source | Timing | Needs | Status |
 | --- | --- | --- | --- |
-| Apple Music | REAL word-by-word | your own Apple Music account | EXPERIMENTAL, see below |
-| LRCLIB | line-by-line; words are **estimated** and labeled as such | nothing, free API | default |
+| LRCLIB | line-by-line; words are **estimated** and labeled as such | nothing, free API | default and only source for now |
 | none found | shows "no lyrics found" | - | never fakes coverage |
 
 The overlay label always says which mode a song is in. Word-by-word coverage depends
@@ -26,10 +25,10 @@ on the source, not on VERSO. No unofficial/scraped lyric endpoints are used.
 line timings (weighted by word length) and the overlay says so. It looks like karaoke but
 is not true word-by-word. This is the main accuracy gap vs. the inspiration app.
 
-**Apple Music provider (experimental)**: real word timings exist only behind an Apple Music
-account. The current code accepts account tokens in settings; they are stored locally,
-unencrypted, in the app's settings file. A proper MusicKit user-authorization flow is the
-planned replacement - do not share your tokens with anyone, and expect this part to change.
+**True word-by-word**: real word timings exist only behind licensed sources (e.g. Apple Music).
+No credential-based provider is enabled: VERSO will not ask for or store account tokens until
+there is an authorized sign-in flow (MusicKit user auth) with secure OS-level storage. The TTML
+parser is already written and tested (src/lyrics/ttml.js), waiting for that flow.
 
 ## Scope note
 
@@ -48,4 +47,4 @@ npm run dist  # local package
 ## Privacy
 
 Everything stays on your machine. Lyric lookups send only track title/artist to the lyric
-source you use (LRCLIB, or Apple Music with your own tokens). No analytics, no account, no keys shipped.
+source you use (LRCLIB). No analytics, no account, no keys, no tokens.
