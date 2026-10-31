@@ -17,7 +17,7 @@ function saveSettings(s) { fs.writeFileSync(settingsPath(), JSON.stringify(s, nu
 const DEFAULTS = {
   mode: 'ship',            // ship | fisheye | visual | plain
   colorMode: 'auto',       // auto (album art) | manual
-  colors: { lyric: '#9fb4ff', highlight: '#ffffff', secondary: '#5a6b9e' },
+  colors: { lyric: '#aab4c8', highlight: '#ffffff', secondary: '#6b7688' },
   clickThrough: true,
   keepAwake: true,
   showWhenPaused: true
