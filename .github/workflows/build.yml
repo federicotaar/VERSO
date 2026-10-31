@@ -44,9 +44,22 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          cat > notes.md <<'NOTES'
+          Test build of Verso, a free word-by-word synced lyrics overlay for Ubuntu and Windows.
+
+          **Ubuntu:** download the .AppImage, run `chmod +x Verso-0.1.0.AppImage`, then launch it. Or install the .deb: `sudo apt install ./verso_0.1.0_amd64.deb`.
+          **Windows:** run the Setup exe to install, or the portable exe to try without installing. The app lives in the system tray.
+
+          **Test-build status:**
+          - Music detection is validated by an automated MPRIS integration test (mock player over D-Bus), not yet with a real player on a real desktop.
+          - Windows runtime behavior is untested so far; the exe is CI-built but has not been launched on a real Windows machine.
+          - Lyrics come from the free LRCLIB service, which is degraded at the time of this build, so synced lyrics may not load until it recovers.
+          - Word-level timings are estimated from line timings, not true per-word synchronization.
+          - This repo is private: you must be logged into GitHub as federicotaar to download.
+          NOTES
           gh release view v0.1.0 >/dev/null 2>&1 && gh release delete v0.1.0 --yes --cleanup-tag || true
           gh release create v0.1.0 \
             artifacts/verso-ubuntu-latest/* \
             artifacts/verso-windows-latest/* \
             --title "Verso 0.1.0 (test build)" \
-            --notes "Test build of Verso, the free word-by-word lyrics overlay. Ubuntu: download the .AppImage, chmod +x it, and run it (or install the .deb with sudo apt install ./verso_0.1.0_amd64.deb). Windows: run the NSIS Setup exe (or the portable exe, no install). Private repo: you must be logged into GitHub as federicotaar to download."
+            --notes-file notes.md
