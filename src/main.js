@@ -106,13 +106,18 @@ async function pollLoop() {
   applyKeepAwake(r.playing);
 
   const key = trackKey(r.track);
-  if (key && key !== lastTrackKey) {
+  const retryDue = lastLyricsError && (Date.now() - lastLyricsAttempt > 20000);
+  if (key && (key !== lastTrackKey || retryDue)) {
     lastTrackKey = key; lastLyricsSent = null;
     if (overlay) overlay.webContents.send('track', { track: r.track });
-    const lyrics = DEMO ? require('./demo').demoLyrics()
-                        : await getLyrics(r.track, settings).catch(() => null);
-    lastLyricsSent = lyrics;
-    if (overlay) overlay.webContents.send('lyrics', { track: r.track, lyrics });
+    let lyrics = null; let lerr = false;
+    if (DEMO) { lyrics = require('./demo').demoLyrics(); }
+    else {
+      try { lyrics = await getLyrics(r.track, settings); }
+      catch (e) { lerr = true; }
+    }
+    lastLyricsSent = lyrics; lastLyricsError = lerr; lastLyricsAttempt = Date.now();
+    if (overlay) overlay.webContents.send('lyrics', { track: r.track, lyrics, error: lerr });
   }
   if (overlay) {
     const visible = r.playing || settings.showWhenPaused || wasPlaying;
@@ -125,6 +130,8 @@ async function pollLoop() {
   }
   schedule(250);
 }
+let lastLyricsError = false;
+let lastLyricsAttempt = 0;
 let timer = null;
 function schedule(ms) { clearTimeout(timer); timer = setTimeout(pollLoop, ms); }
 
@@ -133,6 +140,7 @@ ipcMain.handle('get-state', () => ({
   settings: publicSettings(),
   track: lastState.track,
   lyrics: lastLyricsSent,
+  lyricsError: lastLyricsError,
   tick: { playing: lastState.playing, positionMs: lastState.positionMs, positionAt: lastState.at, track: lastState.track }
 }));
 ipcMain.handle('set-colors', (_e, colors) => {
