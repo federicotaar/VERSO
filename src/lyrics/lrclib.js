@@ -6,7 +6,12 @@ function getJson(url) {
   return new Promise((resolve, reject) => {
     const req = https.get(url, { headers: { 'User-Agent': 'VERSO v0.1 (personal lyrics overlay)' } }, res => {
       if (res.statusCode === 404) { res.resume(); return resolve(null); }
-      if (res.statusCode !== 200) { res.resume(); return reject(new Error('HTTP ' + res.statusCode)); }
+      if (res.statusCode !== 200) {
+        const ra = parseInt(res.headers['retry-after'] || '', 10);
+        const err = new Error('HTTP ' + res.statusCode);
+        if (!isNaN(ra)) err.retryAfterMs = Math.min(ra * 1000, 300000);
+        res.resume(); return reject(err);
+      }
       let data = '';
       res.on('data', c => { data += c; });
       res.on('end', () => { try { resolve(JSON.parse(data)); } catch (e) { reject(e); } });
