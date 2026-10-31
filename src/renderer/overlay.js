@@ -128,15 +128,13 @@ async function resolveArt(track) {
   } catch { return null; }
 }
 
-if (window.verso) {
-  window.verso.getSettings().then(s => { settings = s; applyColors(s.colors); applyMode(); });
-  window.verso.onSettings(s => { settings = s; applyColors(s.colors); applyMode(); });
-  window.verso.onTrack(async ({ track }) => {
-    npTitle.textContent = track.title || '';
-    npArtist.textContent = track.artist || '';
-    lyrSource.textContent = '';
-    const url = await resolveArt(track);
+function applyTrack({ track }) {
+  npTitle.textContent = track.title || '';
+  npArtist.textContent = track.artist || '';
+  lyrSource.textContent = '';
+  resolveArt(track).then(url => {
     if (url) {
+      artEl.style.display = 'block';
       artEl.crossOrigin = 'anonymous';
       artEl.onload = () => {
         if (settings.colorMode === 'auto') {
@@ -145,19 +143,34 @@ if (window.verso) {
         }
       };
       artEl.src = url;
-    }
-  });
-  window.verso.onLyrics(({ lyrics }) => {
-    model = lyrics;
-    if (lyrics) {
-      lyrSource.textContent = lyrics.wordLevel ? 'word-by-word · ' + lyrics.source
-        : lyrics.unsynced ? 'unsynced · ' + lyrics.source
-        : 'line-synced (words estimated) · ' + lyrics.source;
     } else {
-      lyrSource.textContent = 'no lyrics found';
+      artEl.style.display = 'none';
     }
-    buildDom();
   });
+}
+
+function applyLyrics({ lyrics }) {
+  model = lyrics;
+  if (lyrics) {
+    lyrSource.textContent = lyrics.wordLevel ? 'word-by-word · ' + lyrics.source
+      : lyrics.unsynced ? 'unsynced · ' + lyrics.source
+      : 'line-synced (words estimated) · ' + lyrics.source;
+  } else {
+    lyrSource.textContent = 'no lyrics found';
+  }
+  buildDom();
+}
+
+if (window.verso) {
+  window.verso.getState().then(st => {
+    settings = st.settings; applyColors(st.settings.colors); applyMode();
+    if (st.track) applyTrack({ track: st.track });
+    if (st.lyrics) applyLyrics({ lyrics: st.lyrics });
+    if (st.tick) playback = st.tick;
+  });
+  window.verso.onSettings(s => { settings = s; applyColors(s.colors); applyMode(); });
+  window.verso.onTrack(applyTrack);
+  window.verso.onLyrics(applyLyrics);
   window.verso.onTick(t => { playback = t; });
 } else {
   // dev preview in a plain browser
