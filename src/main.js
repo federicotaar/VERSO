@@ -106,15 +106,21 @@ async function pollLoop() {
   applyKeepAwake(r.playing);
 
   const key = trackKey(r.track);
-  const retryDue = lastLyricsError && (Date.now() - lastLyricsAttempt > 20000);
+  const retryDue = lastLyricsError && (Date.now() - lastLyricsAttempt > lyricsRetryDelayMs());
   if (key && (key !== lastTrackKey || retryDue)) {
     lastTrackKey = key; lastLyricsSent = null;
     if (overlay) overlay.webContents.send('track', { track: r.track });
     let lyrics = null; let lerr = false;
     if (DEMO) { lyrics = require('./demo').demoLyrics(); }
     else {
-      try { lyrics = await getLyrics(r.track, settings); }
-      catch (e) { lerr = true; }
+      try {
+        lyrics = await getLyrics(r.track, settings);
+        lyricsFailures = 0; lyricsRetryAfterMs = 0;
+      } catch (e) {
+        lerr = true;
+        lyricsFailures++;
+        if (e && e.retryAfterMs) lyricsRetryAfterMs = e.retryAfterMs;
+      }
     }
     lastLyricsSent = lyrics; lastLyricsError = lerr; lastLyricsAttempt = Date.now();
     if (overlay) overlay.webContents.send('lyrics', { track: r.track, lyrics, error: lerr });
@@ -132,6 +138,13 @@ async function pollLoop() {
 }
 let lastLyricsError = false;
 let lastLyricsAttempt = 0;
+let lyricsFailures = 0;
+let lyricsRetryAfterMs = 0;
+function lyricsRetryDelayMs() {
+  if (lyricsRetryAfterMs) return lyricsRetryAfterMs;
+  // exponential backoff: 20s, 40s, 80s, ... capped at 5 minutes
+  return Math.min(20000 * Math.pow(2, Math.max(0, lyricsFailures - 1)), 300000);
+}
 let timer = null;
 function schedule(ms) { clearTimeout(timer); timer = setTimeout(pollLoop, ms); }
 
