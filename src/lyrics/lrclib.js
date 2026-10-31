@@ -5,6 +5,7 @@ const https = require('https');
 function getJson(url) {
   return new Promise((resolve, reject) => {
     const req = https.get(url, { headers: { 'User-Agent': 'VERSO v0.1 (personal lyrics overlay)' } }, res => {
+      if (res.statusCode === 404) { res.resume(); return resolve(null); }
       if (res.statusCode !== 200) { res.resume(); return reject(new Error('HTTP ' + res.statusCode)); }
       let data = '';
       res.on('data', c => { data += c; });
