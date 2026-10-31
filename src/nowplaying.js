@@ -16,7 +16,7 @@ async function poll() {
     const t = s.track;
     return {
       ok: true,
-      playing: (s.playback && s.playback.status) === 'playing',
+      playing: (s.playback && String(s.playback.status).toLowerCase()) === 'playing',
       positionMs: (s.playback && typeof s.playback.positionMs === 'number') ? s.playback.positionMs : null,
       track: {
         title: t.title || '',
