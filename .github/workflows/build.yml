@@ -60,7 +60,8 @@ jobs:
           NOTES
           gh release view v0.1.0 >/dev/null 2>&1 && gh release delete v0.1.0 --yes --cleanup-tag || true
           gh release create v0.1.0 \
-            artifacts/verso-ubuntu-latest/* \
-            artifacts/verso-windows-latest/* \
+            artifacts/verso-ubuntu-latest/*.AppImage \
+            artifacts/verso-ubuntu-latest/*.deb \
+            artifacts/verso-windows-latest/*.exe \
             --title "Verso 0.1.0 (test build)" \
             --notes-file notes.md
