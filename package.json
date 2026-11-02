@@ -1,7 +1,7 @@
 {
   "name": "verso",
-  "version": "0.1.4",
-  "description": "Word-by-word synced lyrics overlay for Ubuntu and Windows. Free, original.",
+  "version": "0.1.5",
+  "description": "Free fullscreen synced lyrics for macOS, Ubuntu and Windows.",
   "main": "src/main.js",
   "license": "MIT",
   "author": {
@@ -43,6 +43,33 @@
     "nsis": {
       "oneClick": true,
       "perMachine": false
-    }
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        }
+      ],
+      "category": "public.app-category.music",
+      "minimumSystemVersion": "11.0",
+      "identity": "-",
+      "hardenedRuntime": false,
+      "notarize": false,
+      "artifactName": "Verso-${version}-mac-${arch}.${ext}"
+    },
+    "asarUnpack": [
+      "node_modules/now-playing-media/prebuilds/**/*"
+    ]
   }
 }
