@@ -26,8 +26,9 @@ function applyColors(c) {
 }
 function applyMode() {
   stage.className = 'mode-' + settings.mode;
-  document.documentElement.classList.toggle('fs', !!settings.fullscreen);
-  stage.classList.toggle('fs', !!settings.fullscreen);
+  document.documentElement.classList.add('fs');
+  stage.classList.add('fs');
+  document.getElementById('ctl').style.display = settings.fullscreen ? 'flex' : 'none';
   render();
 }
 const chainSvg = document.getElementById('chain-svg');
@@ -321,3 +322,13 @@ if (window.verso) {
 function loop() { render(); requestAnimationFrame(loop); }
 loop();
 
+
+// on-screen window buttons: shown while the mouse moves, hidden when idle
+(function () {
+  let t = null;
+  const wake = () => { document.documentElement.classList.remove('idle'); clearTimeout(t); t = setTimeout(() => document.documentElement.classList.add('idle'), 2500); };
+  window.addEventListener('mousemove', wake); window.addEventListener('mousedown', wake); wake();
+  const send = a => window.verso && window.verso.win && window.verso.win(a);
+  document.getElementById('b-min').onclick = () => send('minimize');
+  document.getElementById('b-fs').onclick = () => send('toggle-fullscreen');
+})();
