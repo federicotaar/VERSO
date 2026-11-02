@@ -26,7 +26,34 @@ jobs:
         run: npx electron-builder --win portable nsis --publish never
       - name: Build (macOS, Intel and Apple silicon)
         if: runner.os == 'macOS'
-        run: npx electron-builder --mac dmg zip --arm64 --x64 --publish never
+        shell: bash
+        run: |
+          cat > /tmp/verso-adhoc.cjs <<'JS'
+          const {execFileSync}=require('node:child_process');
+          const fs=require('node:fs'),path=require('node:path');
+          exports.default=async function(ctx) {
+            const app=path.join(ctx.appOutDir,'Verso.app');
+            const codesign=(p)=>execFileSync('/usr/bin/codesign',['--force','--sign','-',p],{stdio:'inherit'});
+            // Resource binaries are outside standard nested-code locations. Seal each
+            // Mach-O first, then the Electron helpers/frameworks and outer app.
+            const magic=new Set(['feedface','feedfacf','cefaedfe','cffaedfe','cafebabe','bebafeca','cafebabf','bfbafeca']);
+            function walk(dir) {
+              for(const e of fs.readdirSync(dir,{withFileTypes:true})) {
+                const p=path.join(dir,e.name);
+                if(e.isDirectory()) walk(p);
+                else if(e.isFile()) {
+                  const fd=fs.openSync(p,'r'),b=Buffer.alloc(4);
+                  try { fs.readSync(fd,b,0,4,0); } finally { fs.closeSync(fd); }
+                  if(magic.has(b.toString('hex'))) codesign(p);
+                }
+              }
+            }
+            walk(path.join(app,'Contents/Resources'));
+            execFileSync('/usr/bin/codesign',['--force','--deep','--sign','-',app],{stdio:'inherit'});
+            execFileSync('/usr/bin/codesign',['--verify','--deep','--strict',app],{stdio:'inherit'});
+          };
+          JS
+          npx electron-builder --mac dmg zip --arm64 --x64 --publish never -c.afterPack=/tmp/verso-adhoc.cjs
       - name: Check Mac native backend and packaged app
         if: runner.os == 'macOS'
         shell: bash
@@ -39,6 +66,7 @@ jobs:
           VERSO_DEMO=1 VERSO_SHOT="$PWD/dist/mac-demo.png" VERSO_SHOT_MS=9000 "$APP/Contents/MacOS/Verso"
           test -s dist/mac-demo.png
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: verso-${{ matrix.os }}
           path: dist/*
