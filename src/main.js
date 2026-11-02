@@ -1,4 +1,4 @@
-// VERSO - word-by-word lyrics overlay for Ubuntu and Windows.
+// VERSO - fullscreen line-synced lyrics for macOS, Ubuntu and Windows.
 // Tray app: frameless always-on-top overlay + optional fullscreen mode.
 const { app, BrowserWindow, Tray, Menu, nativeImage, ipcMain, powerSaveBlocker, globalShortcut, screen, shell } = require('electron');
 const path = require('path');
@@ -191,7 +191,7 @@ async function pollLoop() {
     });
   }
   web.broadcast('tick', { playing: r.playing, positionMs: lastState.positionMs, positionAt: lastState.at, track: r.track });
-  schedule(250);
+  schedule(process.platform === 'darwin' ? 1000 : 250); // Mac backend launches a short-lived system process.
 }
 let lastLyricsError = false;
 let lastLyricsAttempt = 0;
@@ -231,6 +231,11 @@ else app.on('second-instance', () => { if (overlay) { if (overlay.isMinimized())
 app.whenReady().then(() => {
   logLine('start v' + app.getVersion() + ' settings fullscreen=' + settings.fullscreen + ' mode=' + settings.mode);
   createOverlay(); rebuildTray();
+  if (process.platform === 'darwin') Menu.setApplicationMenu(Menu.buildFromTemplate([
+    { label: 'Verso', submenu: [{ role: 'about' }, { type: 'separator' }, { role: 'hide' }, { role: 'hideOthers' }, { role: 'unhide' }, { type: 'separator' }, { role: 'quit' }] },
+    { role: 'editMenu' },
+    { label: 'Window', submenu: [{ role: 'minimize' }, { label: 'Fullscreen', accelerator: 'CmdOrCtrl+Shift+F', click: toggleFullscreen }, { label: 'Show Verso', click: () => { if (overlay) { overlay.show(); overlay.focus(); } else createOverlay(); } }] }
+  ]));
   globalShortcut.register('CmdOrCtrl+Shift+L', () => {
     settings.clickThrough = !settings.clickThrough; saveSettings(settings); applyClickThrough(); rebuildTray();
   });
@@ -262,3 +267,9 @@ app.on('window-all-closed', e => e.preventDefault()); // tray app
 // 16x16 simple note icon
 const TRAY_ICON_DATAURL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAKElEQVQ4T2NkYGD4z0AEYBxVSFAcMDAwMIwqJBgOAwMDA8OoQoLhMAAA9//+AT2rp1MAAAAASUVORK5CYII=';
 
+
+app.on('activate', () => {
+  if (!app.isReady()) return;
+  if (!overlay) createOverlay();
+  else { if (overlay.isMinimized()) overlay.restore(); overlay.show(); overlay.focus(); }
+});
