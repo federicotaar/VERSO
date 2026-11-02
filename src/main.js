@@ -77,6 +77,8 @@ function createOverlay() {
     if (input.type === 'keyDown' && input.key === 'Escape' && settings.fullscreen) { e.preventDefault(); toggleFullscreen(); }
     if (input.type === 'keyDown' && input.key === 'F11') { e.preventDefault(); toggleFullscreen(); }
   });
+  overlay.webContents.on('console-message', (_e, level, message) => console.log('renderer', level, message));
+  overlay.webContents.on('render-process-gone', (_e, details) => console.error('renderer gone', details));
   overlay.loadFile(path.join(__dirname, 'renderer', 'overlay.html'));
   overlay.on('closed', () => { overlay = null; });
 }
@@ -249,6 +251,8 @@ app.whenReady().then(() => {
   if (process.env.VERSO_SHOT) {
     setTimeout(async () => {
       try {
+        console.log('capture render', await overlay.webContents.executeJavaScript(`(()=>{try{render();return {pos:currentPosition(),playback,mode:settings.mode,cam,first:lineEls[0]&&{s:lineEls[0].s,o:lineEls[0].o,style:lineEls[0].el.getAttribute('style')}}}catch(e){return {error:String(e),stack:e.stack}}})()`));
+        await new Promise(r=>setTimeout(r,1000));
         console.log('capture state', await overlay.webContents.executeJavaScript(`JSON.stringify({ready:document.readyState,lines:document.querySelectorAll('.line').length,visible:[...document.querySelectorAll('.line')].filter(x=>getComputedStyle(x).visibility!=='hidden' && Number(getComputedStyle(x).opacity)>0.1).map(x=>({text:x.innerText,opacity:getComputedStyle(x).opacity,rect:x.getBoundingClientRect().toJSON()}))})`));
         const img = await overlay.webContents.capturePage();
         require('fs').writeFileSync(process.env.VERSO_SHOT, img.toPNG());
