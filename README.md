@@ -42,7 +42,7 @@ Menu > **Open lyrics in browser (this PC only)** starts the local server and ope
 ## Status
 
 - **Implemented:** line-synced lyric map, connected verses, moving camera, mixed fonts, fullscreen/window controls, album-art palette when available, optional keep-awake, local browser mirror.
-- **New in 0.1.5:** macOS Intel and Apple silicon packaging, unpacked native media binaries, explicit pre-package ad-hoc resource/app sealing with strict signature verification, native app menu/Dock handling, slower Mac media polling, background-rendering enabled for the local browser mirror and CI capture, CI native-addon and app-launch checks.
+- **New in 0.1.5:** macOS Intel and Apple silicon packaging, unpacked native media binaries, explicit pre-package ad-hoc resource/app sealing with strict signature verification, native app menu/Dock handling, slower Mac media polling, background-rendering and a suspended-animation watchdog for fullscreen transitions/local browser mirroring, CI native-addon and app-launch checks.
 - **Previously checked:** Linux Electron under Xvfb with a window manager; VLC MPRIS; emulated Spotify-style MPRIS through LRCLIB to the browser; browser rendering and cross-origin access rejection.
 - **Not yet verified on a user's machine:** real Spotify Free on any OS; actual Windows install; Mac download/Gatekeeper override, real music position/seek accuracy and live menu-bar/fullscreen behavior. CI smoke tests are not a substitute for these.
 - **Not included:** lock-screen mode, true word-timed karaoke, handwritten connector redesign or a new 3D visualizer. Existing visual styles are unchanged.
