@@ -314,8 +314,12 @@ if (window.verso) {
   emptyEl.textContent = 'VERSO dev preview';
 }
 
-function loop() { render(); requestAnimationFrame(loop); }
+// macOS can suspend animation callbacks during Space/fullscreen transitions.
+// Keep lyric time advancing even when the window is not the active compositor surface.
+let lastAnimationAt = 0;
+function loop() { lastAnimationAt = Date.now(); render(); requestAnimationFrame(loop); }
 loop();
+setInterval(() => { if (Date.now() - lastAnimationAt > 200) render(); }, 100);
 
 
 // on-screen window buttons: shown while the mouse moves, hidden when idle
