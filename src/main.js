@@ -46,7 +46,7 @@ function createOverlay() {
   const disp = screen.getPrimaryDisplay();
   const common = {
     backgroundColor: '#000000', transparent: false, hasShadow: false, autoHideMenuBar: true, show: false,
-    title: 'Verso', webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true }
+    title: 'Verso', webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, backgroundThrottling: false }
   };
   if (settings.fullscreen) {
     overlay = new BrowserWindow({
@@ -249,6 +249,7 @@ app.whenReady().then(() => {
   if (process.env.VERSO_SHOT) {
     setTimeout(async () => {
       try {
+        console.log('capture state', await overlay.webContents.executeJavaScript(`JSON.stringify({ready:document.readyState,lines:document.querySelectorAll('.line').length,visible:[...document.querySelectorAll('.line')].filter(x=>getComputedStyle(x).visibility!=='hidden' && Number(getComputedStyle(x).opacity)>0.1).map(x=>({text:x.innerText,opacity:getComputedStyle(x).opacity,rect:x.getBoundingClientRect().toJSON()}))})`));
         const img = await overlay.webContents.capturePage();
         require('fs').writeFileSync(process.env.VERSO_SHOT, img.toPNG());
       } catch (e) { console.error('shot failed', e); }
