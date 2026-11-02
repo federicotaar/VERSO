@@ -29,6 +29,7 @@ function applyMode() {
   document.documentElement.classList.add('fs');
   stage.classList.add('fs');
   document.getElementById('ctl').style.display = settings.fullscreen ? 'flex' : 'none';
+  document.documentElement.classList.toggle('fsw', !!settings.fullscreen);
   render();
 }
 const chainSvg = document.getElementById('chain-svg');
