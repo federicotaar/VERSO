@@ -39,4 +39,4 @@ function iconFor(word) {
   const w = word.toLowerCase().replace(/[^a-zàèéìòù']/gi, '');
   return ICONS[w] || null;
 }
-module.exports = { ICONS, iconFor };
+if (typeof module !== 'undefined') module.exports = { ICONS, iconFor };
