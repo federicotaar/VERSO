@@ -50,18 +50,22 @@ jobs:
           cat > notes.md <<NOTES
           Verso ${VERSION} (test build). Free word-by-word synced lyrics for Ubuntu and Windows. Private repo: log in to GitHub as federicotaar to download.
 
-          **What's new in 0.1.1**
-          - Fullscreen by default: edge to edge, matte black, no window frame. Esc or Ctrl/Cmd+Shift+F leaves fullscreen.
-          - New default style, Lyric map: the current lyric is big, a line draws to the next one, sung lyrics shrink and stay on the map while the camera follows the new line. The path wanders up, down, left and right.
-          - Some words are set in an elegant handwriting font (Great Vibes, SIL OFL, bundled).
-          - Upgrading from 0.1.0 switches your style to Lyric map and fullscreen once; your other settings are kept. You can change the style from the tray after that.
+          **What changed in 0.1.3 (fixes the see-through window reported on Ubuntu)**
+          - The window is always solid matte black now. The old floating see-through window (wallpaper visible behind it, no window buttons) is gone.
+          - Normal window mode has the system title bar with minimize, maximize and close.
+          - Fullscreen mode has on-screen minimize and exit-fullscreen buttons (top-right, they appear when you move the mouse). Esc, F11 or Ctrl/Cmd+Shift+F switch between fullscreen and the window; the tray menu has the same options.
+          - Starting Verso a second time brings the running one to the front instead of opening another.
+          - Upgrading switches you back to fullscreen once; your other settings are kept. If fullscreen does not engage, Verso writes a short diagnostic line to verso.log in its settings folder.
+          - 0.1.1 and 0.1.2 are superseded: 0.1.1 can open a see-through window, and 0.1.2 has a label overlapping the on-screen buttons.
+
+          **Before installing over an older version: fully quit Verso first (tray icon, Quit).** Older versions can keep running in the background and would show the old window.
 
           **Ubuntu:** download the .AppImage, run chmod +x Verso-${VERSION}.AppImage, then launch it. Or install the .deb: sudo apt install ./verso_${VERSION}_amd64.deb.
           **Windows:** run the Setup exe to install, or the portable exe to try without installing. The app lives in the system tray.
 
           **Test status (honest):**
-          - Checked: the visuals in a browser render and the Electron window in a virtual display on Linux (fullscreen fills the screen, Esc leaves it, settings upgrade works); music detection with real VLC over MPRIS on Linux; CI builds both platforms.
-          - Not checked: any real Windows machine (exe never launched, Windows now-playing untested), a real Ubuntu desktop session, Spotify itself.
+          - Checked: real Electron on Linux under a virtual display with a window manager and compositor (opaque black in fullscreen and in the window, title bar buttons, on-screen buttons, minimize and restore, Esc and F11 switching, settings upgrade); visuals in a browser render; music detection with real VLC over MPRIS; CI builds both platforms.
+          - Not checked: a real GNOME or Wayland desktop session, any real Windows machine (exe never launched, Windows now-playing untested), Spotify itself, the installed packages being launched.
           - Lyrics come from the free LRCLIB service. Word timings are estimated from line timings, not true per-word sync.
           NOTES
           if gh release view "$TAG" >/dev/null 2>&1; then echo "Release $TAG already exists; refusing to overwrite it. Bump package.json version."; exit 1; fi
