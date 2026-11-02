@@ -1,50 +1,68 @@
 # VERSO
 
-Word-by-word synced lyrics floating over your desktop. Free, original code.
-Inspired by the concept of paid lock-screen lyric apps; no code, assets, or data from any of them.
+Free fullscreen lyrics for **macOS, Ubuntu and Windows**. Original code, no Spotify subscription, developer account or API keys required.
 
-- **Platforms**: Ubuntu (AppImage/deb) and Windows (portable exe/installer).
-- **Players**: whatever the OS reports as now playing - Spotify, Apple Music (Windows), browsers, VLC... (GSMTC on Windows 10 1809+, MPRIS on Linux).
-- **Styles**: Ship (3D drifting wall), Fisheye (lens magnification), Visual (word icons), Plain karaoke. These are our own approximations of the inspiration app's looks, not copies.
-- **Modes**: floating always-on-top overlay (click-through toggle) or fullscreen (`Ctrl+Shift+F`). Tray menu or `Ctrl+Shift+M` to cycle styles, `Ctrl+Shift+L` to lock/unlock the overlay.
-- **Palette**: auto from album art, or set lyric/highlight/secondary yourself.
-- **Keep awake**: display stays on while music plays (toggle in tray).
-- **Demo**: `VERSO_DEMO=1 npm start` runs a fake track with sample lyrics to preview the UI without a player or network.
+[Downloads](https://github.com/federicotaar/VERSO/releases) · [Builds](https://github.com/federicotaar/VERSO/actions)
 
-## Lyrics data (honest version)
+## The lyric map
 
-| Source | Timing | Needs | Status |
-| --- | --- | --- | --- |
-| LRCLIB | line-by-line; words are **estimated** and labeled as such | nothing, free API | default and only source for now |
-| none found | shows "no lyrics found" | - | never fakes coverage |
+A quiet black canvas, mixed typography, connected verses and a moving camera. Each lyric line lights up whole when it starts. The drifting per-word highlight was removed in 0.1.4; this release keeps that choice and the existing camera, connectors and styles. Fullscreen is the default; Esc, F11 or Ctrl/Cmd+Shift+F switches to a normal window.
 
-The overlay label always says which mode a song is in. Word-by-word coverage depends
-on the source, not on VERSO. No unofficial/scraped lyric endpoints are used.
+## Install
 
-**Estimated words**: with the default LRCLIB source, per-word timings are estimated from
-line timings (weighted by word length) and the overlay says so. It looks like karaoke but
-is not true word-by-word. This is the main accuracy gap vs. the inspiration app.
+Fully quit any older Verso first using its tray/menu-bar icon > Quit. Install over the old version, without deleting its settings.
 
-**True word-by-word**: real word timings exist only behind licensed sources (e.g. Apple Music).
-No credential-based provider is enabled: VERSO will not ask for or store account tokens until
-there is an authorized sign-in flow (MusicKit user auth) with secure OS-level storage. The TTML
-parser is already written and tested (src/lyrics/ttml.js), waiting for that flow.
+| System | Download | Install |
+| --- | --- | --- |
+| Mac, Apple silicon (M1 or newer) | `Verso-0.1.5-mac-arm64.dmg` | Open the disk image, drag Verso to Applications, eject it, then open Verso from Applications. |
+| Mac, Intel | `Verso-0.1.5-mac-x64.dmg` | Same steps. Requires macOS 11 or newer. |
+| Ubuntu x64 | `.deb` or `.AppImage` | `sudo apt install ./verso_0.1.5_amd64.deb`, or `chmod +x Verso-0.1.5.AppImage` and launch it. |
+| Windows x64 | Setup `.exe` or portable `.exe` | Run the installer, or open the portable build. |
 
-## Scope note
+Mac ZIP downloads are also available. The Mac app is **ad-hoc signed, not Apple Developer ID signed or notarized**. Apple may block an internet download on first open. If macOS offers it, use System Settings > Privacy & Security > Open Anyway after verifying that the download is this project's release. Do not disable Gatekeeper system-wide. Managed Macs may not permit an override. No paid signing account is used.
 
-Owner's call (2026-10-31): fullscreen lyrics, NO lock-screen mode wanted or planned.
+## Connect music
 
-## Build
+1. Open the Spotify **desktop app** on the same computer and start a song. Spotify Free is supported by design: Verso reads the local OS media session, not the paid Spotify Web Playback SDK or Web API. Real Spotify Free playback still needs on-device validation.
+2. Open Verso. It reads title, artist, duration, play/pause and position from the OS, then asks the free LRCLIB service for lyrics. Start another player if you want to compare media-session reporting.
+3. On Mac, controls live in the menu-bar note icon, app menu and Dock. Windows/Linux use the tray. Quit Verso from that menu when finished.
 
-CI (GitHub Actions, ubuntu + windows runners) builds both targets on every push; artifacts on the run page.
+| Platform | Local music connection |
+| --- | --- |
+| macOS 11+ | `now-playing-media` native **MediaRemote** backend, bundled for Intel and Apple silicon. No MPRIS. The dependency uses its bundled mediaremote-adapter through system Perl, including its documented macOS 15.4+ path. Polls once a second. |
+| Ubuntu | MPRIS over the desktop session's D-Bus. |
+| Windows 10 1809+ | Global System Media Transport Controls. |
 
-```
+Only sessions the player reports to the OS are visible. Position reporting can lag; ads or tracks missing from LRCLIB may have no lyrics. Spotify in a browser, DRM players, seeking and unusual desktop configurations may report differently. There is no account login, remote playback control or promise of universal song coverage.
+
+## Browser page, same computer only
+
+Menu > **Open lyrics in browser (this PC only)** starts the local server and opens `http://127.0.0.1:17653/`. Press F for browser fullscreen. Keep Verso running. This is not a phone/remote website. The server is off until requested; loopback binding, fixed file allowlist, Host/Origin/Fetch-Metadata checks and no cross-origin reads keep it local and read-only.
+
+## Status
+
+- **Implemented:** line-synced lyric map, connected verses, moving camera, mixed fonts, fullscreen/window controls, album-art palette when available, optional keep-awake, local browser mirror.
+- **New in 0.1.5:** macOS Intel and Apple silicon packaging, unpacked native media binaries, native app menu/Dock handling, slower Mac media polling, CI native-addon and app-launch checks.
+- **Previously checked:** Linux Electron under Xvfb with a window manager; VLC MPRIS; emulated Spotify-style MPRIS through LRCLIB to the browser; browser rendering and cross-origin access rejection.
+- **Not yet verified on a user's machine:** real Spotify Free on any OS; actual Windows install; Mac download/Gatekeeper override, real music position/seek accuracy and live menu-bar/fullscreen behavior. CI smoke tests are not a substitute for these.
+- **Not included:** lock-screen mode, true word-timed karaoke, handwritten connector redesign or a new 3D visualizer. Existing visual styles are unchanged.
+
+## Lyrics and privacy
+
+LRCLIB supplies line timing, not guaranteed true word timing. The parser can estimate word timing internally for layout, but the renderer no longer sweeps a highlight word by word. Missing lyrics are shown honestly. Song title, artist and album/duration go to LRCLIB to find a match; album art may be fetched from the source URL when supplied. No analytics, Spotify credentials or account tokens are collected. The optional browser endpoint exposes only the current lyric view on this computer.
+
+## Develop
+
+```sh
 npm ci
-npm start     # run locally
-npm run dist  # local package
+npm test
+npm start
+# UI preview, not proof of live Spotify
+VERSO_DEMO=1 npm start
+# Build this platform
+npm run dist
 ```
 
-## Privacy
+GitHub Actions builds Linux, Windows and Mac on pushes. Manual workflow dispatch publishes a new version only if its tag does not already exist; older releases are retained. Mac CI checks native addon loading, starts the packaged host-architecture app in demo mode and captures its real window. Opposite-architecture packaging does not imply runtime testing.
 
-Everything stays on your machine. Lyric lookups send only track title/artist to the lyric
-source you use (LRCLIB). No analytics, no account, no keys, no tokens.
+Media backend: [now-playing-media](https://github.com/NikolaKaplin/now-playing-media), including [mediaremote-adapter](https://github.com/ungive/mediaremote-adapter). Their notices ship in the dependency. No code or assets from paid lyric apps are used.
