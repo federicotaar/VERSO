@@ -24,7 +24,53 @@ function applyColors(c) {
   document.documentElement.style.setProperty('--highlight', c.highlight);
   document.documentElement.style.setProperty('--secondary', c.secondary);
 }
-function applyMode() { stage.className = 'mode-' + settings.mode; render(); }
+function applyMode() {
+  stage.className = 'mode-' + settings.mode;
+  document.documentElement.classList.toggle('fs', !!settings.fullscreen);
+  stage.classList.toggle('fs', !!settings.fullscreen);
+  render();
+}
+const chainSvg = document.getElementById('chain-svg');
+let chainPaths = [];
+const SVGNS = 'http://www.w3.org/2000/svg';
+function chainBuild() {
+  chainSvg.innerHTML = ''; chainPaths = [];
+  for (let i = 0; i < lineEls.length - 1; i++) {
+    const p = document.createElementNS(SVGNS, 'path'); p.style.opacity = 0; chainSvg.appendChild(p); chainPaths.push(p);
+  }
+}
+const CH_PAST = 0.4, CH_LEAD = 1100;
+function chainX(i, W) { return (i % 2 === 0 ? -1 : 1) * W * 0.17; }
+function chainRender(pos, cur) {
+  const W = window.innerWidth, H = window.innerHeight, step = H * 0.3;
+  const cx = W / 2, cy = H / 2;
+  const nextStart = cur + 1 < lineEls.length ? lineEls[cur + 1].line.startMs : Infinity;
+  lineEls.forEach((le, i) => {
+    const d = i - cur, el = le.el;
+    const scale = d === 0 ? 1 : d < 0 ? CH_PAST : 0.8;
+    const x = chainX(i, W), y = d * step;
+    el.style.transform = `translate(-50%,-50%) translate(${x}px, ${y}px) scale(${scale})`;
+    el.className = 'line ' + (d === 0 ? 'current' : d < 0 ? 'past' : 'chain-hide');
+    if (d < -2 || d > 1) el.style.opacity = 0; else el.style.opacity = '';
+  });
+  chainPaths.forEach((p, i) => {
+    const d = i - cur; // connector from line i to i+1
+    if (d < -2 || d > 0) { p.style.opacity = 0; return; }
+    const a = lineEls[i].el, b = lineEls[i + 1].el;
+    const sa = d === 0 ? 1 : CH_PAST, sb = d === 0 ? 1 : d === -1 ? 1 : CH_PAST;
+    // end of connector sits at top of next line (full size once it is current)
+    const x1 = cx + chainX(i, W), y1 = cy + d * step + (a.offsetHeight * sa) / 2 + 10;
+    const x2 = cx + chainX(i + 1, W), y2 = cy + (d + 1) * step - (b.offsetHeight * (d === 0 ? 1 : d === -1 ? 1 : CH_PAST)) / 2 - 10;
+    const my = (y1 + y2) / 2;
+    p.setAttribute('d', `M${x1},${y1} C${x1},${my} ${x2},${my} ${x2},${y2}`);
+    const len = p.getTotalLength();
+    p.style.strokeDasharray = len;
+    let prog = 1;
+    if (d === 0) prog = Math.max(0, Math.min(1, (pos - (nextStart - CH_LEAD)) / CH_LEAD));
+    p.style.strokeDashoffset = len * (1 - prog);
+    p.style.opacity = d === 0 ? (prog > 0 ? 1 : 0) : 0.35;
+  });
+}
 
 function buildDom() {
   wall.innerHTML = ''; lineEls = [];
@@ -74,6 +120,12 @@ function render() {
     if (lineEls[i].line.startMs <= pos) cur = i; else break;
   }
   const gap = window.innerHeight * 0.16;
+  if (settings.mode === 'chain') {
+    if (chainPaths.length !== lineEls.length - 1) chainBuild();
+    chainRender(pos, cur);
+    lineEls.forEach(le => wordProgress(le, pos));
+    return;
+  }
   lineEls.forEach((le, i) => {
     const d = i - cur;
     const { el } = le;
@@ -90,7 +142,11 @@ function render() {
     } else {
       el.style.transform = `translate(-50%,-50%) translateY(${d * gap}px)`;
     }
-    // word progress
+    wordProgress(le, pos);
+  });
+}
+function wordProgress(le, pos) {
+  {
     if (le.wordEls.length) {
       le.line.words.forEach((w, j) => {
         const wEl = le.wordEls[j];
@@ -102,7 +158,7 @@ function render() {
         wEl.classList.toggle('sung', p >= 1);
       });
     }
-  });
+  }
 }
 
 function paletteFromArt(imgEl) {
@@ -197,3 +253,4 @@ if (window.verso) {
 
 function loop() { render(); requestAnimationFrame(loop); }
 loop();
+
