@@ -1,4 +1,5 @@
-// Now-playing source: reads the OS media session (GSMTC on Windows, MPRIS on Linux)
+// OS media session: GSMTC (Windows), MPRIS (Linux), MediaRemote (macOS).
+// macOS uses the bundled native adapter, not Linux D-Bus or the Spotify Web API.
 // through now-playing-media's prebuilt Node-API binaries.
 // The package is pure ESM and Electron 33 (Node 20) cannot require() ESM,
 // so it is loaded with a lazy dynamic import().
