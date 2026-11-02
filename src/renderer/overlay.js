@@ -214,20 +214,16 @@ function render() {
     wordProgress(le, pos);
   });
 }
+// Plain lyrics: no moving per-word highlight (it drifted from the singing). A line lights up as a whole when it starts.
 function wordProgress(le, pos) {
-  {
-    if (le.wordEls.length) {
-      le.line.words.forEach((w, j) => {
-        const wEl = le.wordEls[j];
-        const fill = wEl.querySelector('.fill');
-        let p = 0;
-        if (pos >= w.endMs) p = 1;
-        else if (pos > w.startMs) p = (pos - w.startMs) / Math.max(1, w.endMs - w.startMs);
-        fill.style.width = (p * 100).toFixed(1) + '%';
-        wEl.classList.toggle('sung', p >= 1);
-      });
-    }
-  }
+  const on = pos >= le.line.startMs;
+  if (le.lit === on) return;
+  le.lit = on;
+  le.wordEls.forEach(wEl => {
+    const fill = wEl.querySelector('.fill');
+    if (fill) fill.style.width = '0%';
+    wEl.classList.toggle('sung', on);
+  });
 }
 
 function paletteFromArt(imgEl) {
@@ -295,9 +291,7 @@ function applyLyrics({ lyrics, error }) {
   lyricsFetchError = !!error;
   model = lyrics;
   if (lyrics) {
-    lyrSource.textContent = lyrics.wordLevel ? 'word-by-word · ' + lyrics.source
-      : lyrics.unsynced ? 'unsynced · ' + lyrics.source
-      : 'line-synced (words estimated) · ' + lyrics.source;
+    lyrSource.textContent = lyrics.unsynced ? 'unsynced · ' + lyrics.source : 'synced · ' + lyrics.source;
   } else {
     lyrSource.textContent = lyricsFetchError ? 'lyrics service unreachable' : 'no lyrics found';
   }
