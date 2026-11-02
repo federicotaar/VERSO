@@ -101,3 +101,4 @@ html.idle #ctl { opacity: 0; pointer-events: none; }
 #ctl button { width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(255,255,255,.25); background: rgba(20,20,20,.85);
   color: #ddd; font-size: 18px; line-height: 1; cursor: pointer; }
 #ctl button:hover { background: #222; color: #fff; }
+html.fsw:not(.idle) #lyr-source { opacity: 0; transition: opacity .2s; }
