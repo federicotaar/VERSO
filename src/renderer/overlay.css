@@ -73,8 +73,22 @@ html.fs, html.fs body { background: #000; cursor: none; }
 /* chain: big current lyric, a line draws to the next, the previous shrinks */
 #chain-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; display: none; overflow: visible; }
 .mode-chain #chain-svg { display: block; }
-#chain-svg path { fill: none; stroke: var(--highlight); stroke-width: 2.5; stroke-linecap: round; }
-.mode-chain .line { width: 42vw; font-size: 5.2vw; transition: opacity .6s, transform .7s cubic-bezier(.2,.8,.2,1);
+#chain-svg path { fill: none; stroke: var(--highlight); stroke-width: 1.4; stroke-linecap: round; }
+#chain-svg circle { fill: var(--highlight); }
+.mode-chain .line { width: max-content; max-width: 30vw; font-size: 4.2vw; transition: opacity .35s, transform .4s cubic-bezier(.3,.8,.3,1);
   transform-origin: center center; }
 .mode-chain .line.chain-hide { opacity: 0; }
 .mode-chain .line.past { opacity: .4; }
+
+/* handwriting accent words: one per line, rest stays in the sans */
+.word.script { font-family: 'Great Vibes', 'Segoe Script', cursive; font-weight: 400;
+  font-size: 1.5em; line-height: 0.9; letter-spacing: 0.01em; vertical-align: baseline; padding: 0 .08em; }
+.word.script .fill { padding: 0 .08em; left: 0; }
+
+/* sequencing: the old line shrinks first, the new one fades in after it has cleared */
+.mode-chain .line.current { transition: opacity .5s ease .35s, transform .4s cubic-bezier(.3,.8,.3,1); }
+#chain-svg path, #chain-svg circle { transition: opacity .35s; }
+
+/* chain: camera and scale are driven per frame in JS, so no CSS transitions on lines or connectors */
+.mode-chain .line, .mode-chain .line.current { transition: none; }
+#chain-svg path, #chain-svg circle { transition: none; }
