@@ -251,7 +251,7 @@ app.whenReady().then(() => {
   if (process.env.VERSO_SHOT) {
     setTimeout(async () => {
       try {
-        console.log('capture state', await overlay.webContents.executeJavaScript(`JSON.stringify({ready:document.readyState,lines:document.querySelectorAll('.line').length,visible:[...document.querySelectorAll('.line')].filter(x=>getComputedStyle(x).visibility!=='hidden' && Number(getComputedStyle(x).opacity)>0.1).map(x=>({text:x.innerText,opacity:getComputedStyle(x).opacity,rect:x.getBoundingClientRect().toJSON()}))})`));
+        console.log('capture state', await overlay.webContents.executeJavaScript(`JSON.stringify({pos:currentPosition(),mode:settings.mode,lastAnimationAt,cam,playback,first:lineEls[0]&&{s:lineEls[0].s,o:lineEls[0].o,style:lineEls[0].el.getAttribute('style')},ready:document.readyState,lines:document.querySelectorAll('.line').length,visible:[...document.querySelectorAll('.line')].filter(x=>getComputedStyle(x).visibility!=='hidden' && Number(getComputedStyle(x).opacity)>0.1).map(x=>({text:x.innerText,opacity:getComputedStyle(x).opacity,rect:x.getBoundingClientRect().toJSON()}))})`));
         const img = await overlay.webContents.capturePage();
         require('fs').writeFileSync(process.env.VERSO_SHOT, img.toPNG());
       } catch (e) { console.error('shot failed', e); }
