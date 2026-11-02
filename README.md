@@ -1,6 +1,6 @@
 # VERSO
 
-Word-by-word synced lyrics floating over your desktop. Free, private, original code.
+Word-by-word synced lyrics floating over your desktop. Free, original code.
 Inspired by the concept of paid lock-screen lyric apps; no code, assets, or data from any of them.
 
 - **Platforms**: Ubuntu (AppImage/deb) and Windows (portable exe/installer).
