@@ -1,7 +1,7 @@
 {
   "name": "verso",
   "version": "0.1.4",
-  "description": "Word-by-word synced lyrics overlay for Ubuntu and Windows. Free, private, original.",
+  "description": "Word-by-word synced lyrics overlay for Ubuntu and Windows. Free, original.",
   "main": "src/main.js",
   "license": "MIT",
   "author": {
