@@ -6,6 +6,7 @@ const fs = require('fs');
 const DEMO = !!process.env.VERSO_DEMO;
 const nowplaying = DEMO ? require('./demo') : require('./nowplaying');
 const { getLyrics } = require('./lyrics');
+const web = require('./webserver');
 
 const settingsPath = () => path.join(app.getPath('userData'), 'settings.json');
 const SETTINGS_VERSION = 3;
@@ -100,12 +101,26 @@ function rebuildTray() {
     { label: 'Show when paused', type: 'checkbox', checked: settings.showWhenPaused, click: i => { settings.showWhenPaused = i.checked; saveSettings(settings); rebuildTray(); } },
     { type: 'separator' },
     { label: 'Show window / bring to front', click: () => { if (overlay) { overlay.show(); overlay.focus(); } } },
+    { label: 'Open lyrics in browser (this PC only)', click: openWeb },
     { label: 'Fullscreen (matte black)', type: 'checkbox', checked: !!settings.fullscreen, accelerator: 'CmdOrCtrl+Shift+F', click: toggleFullscreen },
     { label: 'Quit', click: () => app.quit() }
   ]);
   tray.setContextMenu(ctx);
 }
 
+function openWebNoBrowser() { // test hook only
+  web.start({ log: logLine, getState: () => ({ settings: publicSettings(), track: lastState.track, lyrics: lastLyricsSent, lyricsError: lastLyricsError,
+    tick: { playing: lastState.playing, positionMs: lastState.positionMs, positionAt: lastState.at, track: lastState.track } }) });
+}
+async function openWeb() {
+  const u = await web.start({
+    log: logLine,
+    getState: () => ({ settings: publicSettings(), track: lastState.track, lyrics: lastLyricsSent, lyricsError: lastLyricsError,
+      tick: { playing: lastState.playing, positionMs: lastState.positionMs, positionAt: lastState.at, track: lastState.track } })
+  });
+  if (u) shell.openExternal(u);
+  else logLine('browser page could not start (port ' + web.PORT + ' busy?)');
+}
 function setMode(m) { settings.mode = m; saveSettings(settings); pushSettings(); rebuildTray(); }
 function applyClickThrough() {} // the window is now always opaque and clickable; kept so old settings/shortcuts do not break
 function applyKeepAwake(playing) {
@@ -126,6 +141,7 @@ function toggleFullscreen() {
 
 function pushSettings() {
   if (overlay) overlay.webContents.send('settings', publicSettings());
+  web.broadcast('settings', publicSettings());
 }
 function publicSettings() { return { ...settings }; }
 
@@ -148,6 +164,7 @@ async function pollLoop() {
   if (key && (key !== lastTrackKey || retryDue)) {
     lastTrackKey = key; lastLyricsSent = null;
     if (overlay) overlay.webContents.send('track', { track: r.track });
+    web.broadcast('track', { track: r.track });
     let lyrics = null; let lerr = false;
     if (DEMO) { lyrics = require('./demo').demoLyrics(); }
     else {
@@ -162,6 +179,7 @@ async function pollLoop() {
     }
     lastLyricsSent = lyrics; lastLyricsError = lerr; lastLyricsAttempt = Date.now();
     if (overlay) overlay.webContents.send('lyrics', { track: r.track, lyrics, error: lerr });
+    web.broadcast('lyrics', { track: r.track, lyrics, error: lerr });
   }
   if (overlay) {
     const visible = r.playing || settings.showWhenPaused || wasPlaying;
@@ -172,6 +190,7 @@ async function pollLoop() {
       positionAt: lastState.at, track: r.track
     });
   }
+  web.broadcast('tick', { playing: r.playing, positionMs: lastState.positionMs, positionAt: lastState.at, track: r.track });
   schedule(250);
 }
 let lastLyricsError = false;
@@ -221,6 +240,7 @@ app.whenReady().then(() => {
     setMode(modes[(modes.indexOf(settings.mode) + 1) % modes.length]);
   });
   pollLoop();
+  if (process.env.VERSO_WEB_AUTOSTART) openWebNoBrowser();
   if (process.env.VERSO_SHOT) {
     setTimeout(async () => {
       try {
@@ -233,6 +253,7 @@ app.whenReady().then(() => {
 });
 
 app.on('will-quit', () => {
+  web.stop();
   globalShortcut.unregisterAll();
   if (blockerId !== null && powerSaveBlocker.isStarted(blockerId)) powerSaveBlocker.stop(blockerId);
 });
