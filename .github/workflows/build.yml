@@ -50,13 +50,13 @@ jobs:
           cat > notes.md <<NOTES
           Verso ${VERSION} (test build). Free word-by-word synced lyrics for Ubuntu and Windows. Private repo: log in to GitHub as federicotaar to download.
 
-          **What changed in 0.1.3 (fixes the see-through window reported on Ubuntu)**
-          - The window is always solid matte black now. The old floating see-through window (wallpaper visible behind it, no window buttons) is gone.
-          - Normal window mode has the system title bar with minimize, maximize and close.
-          - Fullscreen mode has on-screen minimize and exit-fullscreen buttons (top-right, they appear when you move the mouse). Esc, F11 or Ctrl/Cmd+Shift+F switch between fullscreen and the window; the tray menu has the same options.
-          - Starting Verso a second time brings the running one to the front instead of opening another.
-          - Upgrading switches you back to fullscreen once; your other settings are kept. If fullscreen does not engage, Verso writes a short diagnostic line to verso.log in its settings folder.
-          - 0.1.1 and 0.1.2 are superseded: 0.1.1 can open a see-through window, and 0.1.2 has a label overlapping the on-screen buttons.
+          **What changed in 0.1.4**
+          - Plain lyrics: the moving highlight that swept across each word is gone (it drifted from the singing). Each line now lights up as a whole when it starts. The camera movement, the connecting lines between verses, the mixed typography and the persistent map stay.
+          - New: lyrics in your browser, on the same PC.
+          - Tray menu, "Open lyrics in browser (this PC only)": opens the same lyric map in your browser at http://127.0.0.1:17653/ . Press F for browser fullscreen. It follows whatever your PC is playing (Spotify desktop, free account is fine, no Spotify login or API needed).
+          - Verso must stay running (tray icon). The page only works on the PC where Verso runs. It is not reachable from your phone or other devices, and other websites cannot read it (loopback only, Host/Origin checks, read-only).
+          - The server stays off until you click that menu item.
+          - Everything from 0.1.3 is unchanged (solid black window, window buttons, fullscreen controls, Esc/F11). 0.1.1 and 0.1.2 stay superseded.
 
           **Before installing over an older version: fully quit Verso first (tray icon, Quit).** Older versions can keep running in the background and would show the old window.
 
@@ -64,7 +64,7 @@ jobs:
           **Windows:** run the Setup exe to install, or the portable exe to try without installing. The app lives in the system tray.
 
           **Test status (honest):**
-          - Checked: real Electron on Linux under a virtual display with a window manager and compositor (opaque black in fullscreen and in the window, title bar buttons, on-screen buttons, minimize and restore, Esc and F11 switching, settings upgrade); visuals in a browser render; music detection with real VLC over MPRIS; CI builds both platforms.
+          - Checked: real Electron on Linux under a virtual display with a window manager and compositor (opaque black in fullscreen and in the window, title bar buttons, on-screen buttons, minimize and restore, Esc and F11 switching, settings upgrade); the browser page served by the real app (rendering, local-only access checks); music detection with real VLC over MPRIS; CI builds both platforms.
           - Not checked: a real GNOME or Wayland desktop session, any real Windows machine (exe never launched, Windows now-playing untested), Spotify itself, the installed packages being launched.
           - Lyrics come from the free LRCLIB service. Word timings are estimated from line timings, not true per-word sync.
           NOTES
