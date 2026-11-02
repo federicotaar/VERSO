@@ -60,6 +60,7 @@ jobs:
         run: |
           node --input-type=module -e 'import {current,nativeBindingPath} from "now-playing-media"; console.log(nativeBindingPath()); console.log(await current());'
           if [ "$(uname -m)" = "arm64" ]; then APP=dist/mac-arm64/Verso.app; else APP=dist/mac/Verso.app; fi
+          APP="$PWD/$APP"
           test -f "$APP/Contents/Resources/app.asar.unpacked/node_modules/now-playing-media/prebuilds/darwin-$(node -p process.arch)/now-playing-media.node"
           codesign --verify --deep --strict "$APP"
           ELECTRON_RUN_AS_NODE=1 "$APP/Contents/MacOS/Verso" -e 'const {createRequire}=require("module"); const r=createRequire(process.argv[1]+"/Contents/Resources/app.asar/package.json"); const p=r.resolve("now-playing-media"); import(require("url").pathToFileURL(p).href).then(async m=>console.log(await m.current())).catch(e=>{console.error(e);process.exit(1)})' "$APP"
