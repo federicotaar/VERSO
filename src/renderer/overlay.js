@@ -174,6 +174,9 @@ function buildDom() {
     lineEls.push({ el, line, wordEls: line.words ? [...el.querySelectorAll('.word')] : [] });
   });
   wall.appendChild(frag);
+  // State hydration and live lyrics can arrive with the same line count.
+  // Always reset per-element animation state for the new DOM, not just path count.
+  chainBuild();
 }
 
 function currentPosition() {
@@ -308,7 +311,7 @@ if (window.verso) {
   window.verso.onSettings(s => { settings = s; applyColors(s.colors); applyMode(); });
   window.verso.onTrack(applyTrack);
   window.verso.onLyrics(applyLyrics);
-  window.verso.onTick(t => { playback = t; });
+  window.verso.onTick(t => { playback = t; render(); });
 } else {
   // dev preview in a plain browser
   emptyEl.textContent = 'VERSO dev preview';
@@ -319,7 +322,7 @@ if (window.verso) {
 let lastAnimationAt = 0;
 function loop() { lastAnimationAt = Date.now(); render(); requestAnimationFrame(loop); }
 loop();
-setInterval(() => { if (Date.now() - lastAnimationAt > 200) render(); }, 100);
+setInterval(render, 100); // Media-time fallback even if a hidden macOS Space stalls animation delivery.
 
 
 // on-screen window buttons: shown while the mouse moves, hidden when idle
