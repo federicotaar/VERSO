@@ -8,14 +8,15 @@ const nowplaying = DEMO ? require('./demo') : require('./nowplaying');
 const { getLyrics } = require('./lyrics');
 
 const settingsPath = () => path.join(app.getPath('userData'), 'settings.json');
-const SETTINGS_VERSION = 2;
+const SETTINGS_VERSION = 3;
 function loadSettings() {
   let raw, s;
   try { raw = JSON.parse(fs.readFileSync(settingsPath(), 'utf8')); s = { ...DEFAULTS, ...raw }; }
   catch { return { ...DEFAULTS, settingsVersion: SETTINGS_VERSION }; }
   // upgrade from <0.1.1: apply the new default look once (chain + fullscreen), keep every other setting
   if ((raw.settingsVersion || 1) < SETTINGS_VERSION) {
-    s.mode = 'chain'; s.fullscreen = true; s.settingsVersion = SETTINGS_VERSION;
+    if ((raw.settingsVersion || 1) < 2) s.mode = 'chain';
+    s.fullscreen = true; s.settingsVersion = SETTINGS_VERSION;
     try { fs.writeFileSync(settingsPath(), JSON.stringify(s, null, 2)); } catch {}
   }
   return s;
@@ -37,38 +38,44 @@ let overlay = null, tray = null, blockerId = null;
 let lastTrackKey = null, lastLyricsSent = null;
 let lastState = { playing: false, positionMs: 0, at: Date.now(), track: null };
 
+function logLine(msg) {
+  try { fs.appendFileSync(path.join(app.getPath('userData'), 'verso.log'), new Date().toISOString() + ' ' + msg + '\n'); } catch {}
+}
 function createOverlay() {
   const disp = screen.getPrimaryDisplay();
+  const common = {
+    backgroundColor: '#000000', transparent: false, hasShadow: false, autoHideMenuBar: true, show: false,
+    title: 'Verso', webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true }
+  };
   if (settings.fullscreen) {
     overlay = new BrowserWindow({
-      x: disp.bounds.x, y: disp.bounds.y, width: disp.bounds.width, height: disp.bounds.height,
-      fullscreen: true, frame: false, transparent: false, backgroundColor: '#000000',
-      alwaysOnTop: true, skipTaskbar: false, resizable: false, hasShadow: false,
-      autoHideMenuBar: true, show: false,
-      webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true }
+      ...common, x: disp.bounds.x, y: disp.bounds.y, width: disp.bounds.width, height: disp.bounds.height,
+      fullscreen: true, frame: false, resizable: false, skipTaskbar: false
     });
     overlay.setMenuBarVisibility(false);
-    overlay.setAlwaysOnTop(true, 'screen-saver');
-    overlay.once('ready-to-show', () => { overlay.setFullScreen(true); overlay.show(); });
-    overlay.webContents.on('before-input-event', (e, input) => {
-      if (input.type === 'keyDown' && input.key === 'Escape') { e.preventDefault(); toggleFullscreen(); }
+    overlay.once('ready-to-show', () => {
+      overlay.setFullScreen(true); overlay.show();
+      // some Linux desktops ignore the first request: verify and fall back to full display bounds
+      setTimeout(() => {
+        if (!overlay) return;
+        const ok = overlay.isFullScreen();
+        logLine('fullscreen requested, isFullScreen=' + ok + ' session=' + (process.env.XDG_SESSION_TYPE || '?') + ' desktop=' + (process.env.XDG_CURRENT_DESKTOP || '?'));
+        if (!ok) { overlay.setBounds(disp.bounds); overlay.setFullScreen(true); }
+      }, 1500);
     });
-    overlay.loadFile(path.join(__dirname, 'renderer', 'overlay.html'));
-    overlay.on('closed', () => { overlay = null; });
-    return;
+  } else {
+    // normal opaque window with the system title bar (minimize / maximize / close)
+    overlay = new BrowserWindow({
+      ...common, width: Math.round(disp.workAreaSize.width * 0.7), height: Math.round(disp.workAreaSize.height * 0.7),
+      frame: true, resizable: true, minimizable: true, maximizable: true, fullscreenable: true, skipTaskbar: false
+    });
+    overlay.setMenuBarVisibility(false);
+    overlay.once('ready-to-show', () => overlay.show());
   }
-  overlay = new BrowserWindow({
-    width: Math.round(disp.workAreaSize.width * 0.7),
-    height: Math.round(disp.workAreaSize.height * 0.45),
-    x: Math.round(disp.workAreaSize.width * 0.15),
-    y: Math.round(disp.workAreaSize.height * 0.45),
-    frame: false, transparent: true, alwaysOnTop: true, skipTaskbar: true,
-    resizable: true, hasShadow: false,
-    webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true }
+  overlay.webContents.on('before-input-event', (e, input) => {
+    if (input.type === 'keyDown' && input.key === 'Escape' && settings.fullscreen) { e.preventDefault(); toggleFullscreen(); }
+    if (input.type === 'keyDown' && input.key === 'F11') { e.preventDefault(); toggleFullscreen(); }
   });
-  overlay.setAlwaysOnTop(true, 'screen-saver');
-  overlay.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
-  overlay.setIgnoreMouseEvents(settings.clickThrough, { forward: true });
   overlay.loadFile(path.join(__dirname, 'renderer', 'overlay.html'));
   overlay.on('closed', () => { overlay = null; });
 }
@@ -89,10 +96,10 @@ function rebuildTray() {
     { label: 'Style: Plain karaoke', type: 'radio', checked: settings.mode === 'plain', click: () => setMode('plain') },
     { type: 'separator' },
     { label: 'Palette from album art', type: 'checkbox', checked: settings.colorMode === 'auto', click: i => { settings.colorMode = i.checked ? 'auto' : 'manual'; saveSettings(settings); pushSettings(); } },
-    { label: 'Click-through (lock overlay)', type: 'checkbox', checked: settings.clickThrough, click: i => { settings.clickThrough = i.checked; saveSettings(settings); applyClickThrough(); rebuildTray(); } },
-    { label: 'Keep display awake while playing', type: 'checkbox', checked: settings.keepAwake, click: i => { settings.keepAwake = i.checked; saveSettings(settings); applyKeepAwake(lastState.playing); } },
+        { label: 'Keep display awake while playing', type: 'checkbox', checked: settings.keepAwake, click: i => { settings.keepAwake = i.checked; saveSettings(settings); applyKeepAwake(lastState.playing); } },
     { label: 'Show when paused', type: 'checkbox', checked: settings.showWhenPaused, click: i => { settings.showWhenPaused = i.checked; saveSettings(settings); rebuildTray(); } },
     { type: 'separator' },
+    { label: 'Show window / bring to front', click: () => { if (overlay) { overlay.show(); overlay.focus(); } } },
     { label: 'Fullscreen (matte black)', type: 'checkbox', checked: !!settings.fullscreen, accelerator: 'CmdOrCtrl+Shift+F', click: toggleFullscreen },
     { label: 'Quit', click: () => app.quit() }
   ]);
@@ -100,7 +107,7 @@ function rebuildTray() {
 }
 
 function setMode(m) { settings.mode = m; saveSettings(settings); pushSettings(); rebuildTray(); }
-function applyClickThrough() { if (overlay && !settings.fullscreen) overlay.setIgnoreMouseEvents(settings.clickThrough, { forward: true }); }
+function applyClickThrough() {} // the window is now always opaque and clickable; kept so old settings/shortcuts do not break
 function applyKeepAwake(playing) {
   if (settings.keepAwake && playing) {
     if (blockerId === null) blockerId = powerSaveBlocker.start('prevent-display-sleep');
@@ -179,6 +186,11 @@ function lyricsRetryDelayMs() {
 let timer = null;
 function schedule(ms) { clearTimeout(timer); timer = setTimeout(pollLoop, ms); }
 
+ipcMain.on('win', (_e, action) => {
+  if (!overlay) return;
+  if (action === 'minimize') overlay.minimize();
+  else if (action === 'toggle-fullscreen') toggleFullscreen();
+});
 ipcMain.handle('get-settings', () => publicSettings());
 ipcMain.handle('get-state', () => ({
   settings: publicSettings(),
@@ -195,7 +207,10 @@ ipcMain.on('palette', (_e, palette) => {
   if (settings.colorMode === 'auto' && palette && overlay) overlay.webContents.send('palette-applied', palette);
 });
 
+if (!app.requestSingleInstanceLock()) { app.quit(); }
+else app.on('second-instance', () => { if (overlay) { if (overlay.isMinimized()) overlay.restore(); overlay.show(); overlay.focus(); } });
 app.whenReady().then(() => {
+  logLine('start v' + app.getVersion() + ' settings fullscreen=' + settings.fullscreen + ' mode=' + settings.mode);
   createOverlay(); rebuildTray();
   globalShortcut.register('CmdOrCtrl+Shift+L', () => {
     settings.clickThrough = !settings.clickThrough; saveSettings(settings); applyClickThrough(); rebuildTray();
