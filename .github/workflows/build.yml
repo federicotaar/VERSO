@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -24,6 +24,20 @@ jobs:
       - name: Build (Windows)
         if: runner.os == 'Windows'
         run: npx electron-builder --win portable nsis --publish never
+      - name: Build (macOS, Intel and Apple silicon)
+        if: runner.os == 'macOS'
+        run: npx electron-builder --mac dmg zip --arm64 --x64 --publish never
+      - name: Check Mac native backend and packaged app
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          node --input-type=module -e 'import {current,nativeBindingPath} from "now-playing-media"; console.log(nativeBindingPath()); console.log(await current());'
+          if [ "$(uname -m)" = "arm64" ]; then APP=dist/mac-arm64/Verso.app; else APP=dist/mac/Verso.app; fi
+          test -f "$APP/Contents/Resources/app.asar.unpacked/node_modules/now-playing-media/prebuilds/darwin-$(node -p process.arch)/now-playing-media.node"
+          codesign --verify --deep --strict "$APP"
+          ELECTRON_RUN_AS_NODE=1 "$APP/Contents/MacOS/Verso" -e 'const {createRequire}=require("module"); const r=createRequire(process.argv[1]+"/Contents/Resources/app.asar/package.json"); const p=r.resolve("now-playing-media"); import(require("url").pathToFileURL(p).href).then(async m=>console.log(await m.current())).catch(e=>{console.error(e);process.exit(1)})' "$APP"
+          VERSO_DEMO=1 VERSO_SHOT="$PWD/dist/mac-demo.png" VERSO_SHOT_MS=9000 "$APP/Contents/MacOS/Verso"
+          test -s dist/mac-demo.png
       - uses: actions/upload-artifact@v4
         with:
           name: verso-${{ matrix.os }}
@@ -47,31 +61,25 @@ jobs:
         run: |
           VERSION=$(node -p "require('./package.json').version")
           TAG="v${VERSION}"
-          cat > notes.md <<NOTES
-          Verso ${VERSION} (test build). Free word-by-word synced lyrics for Ubuntu and Windows. Public repo: downloads work without a GitHub login.
-
-          **What changed in 0.1.4**
-          - Plain lyrics: the moving highlight that swept across each word is gone (it drifted from the singing). Each line now lights up as a whole when it starts. The camera movement, the connecting lines between verses, the mixed typography and the persistent map stay.
-          - New: lyrics in your browser, on the same PC.
-          - Tray menu, "Open lyrics in browser (this PC only)": opens the same lyric map in your browser at http://127.0.0.1:17653/ . Press F for browser fullscreen. It follows whatever your PC is playing (Spotify desktop, free account is fine, no Spotify login or API needed).
-          - Verso must stay running (tray icon). The page only works on the PC where Verso runs. It is not reachable from your phone or other devices, and other websites cannot read it (loopback only, Host/Origin checks, read-only).
-          - The server stays off until you click that menu item.
-          - Everything from 0.1.3 is unchanged (solid black window, window buttons, fullscreen controls, Esc/F11). 0.1.1 and 0.1.2 stay superseded.
-
-          **Before installing over an older version: fully quit Verso first (tray icon, Quit).** Older versions can keep running in the background and would show the old window.
-
-          **Ubuntu:** download the .AppImage, run chmod +x Verso-${VERSION}.AppImage, then launch it. Or install the .deb: sudo apt install ./verso_${VERSION}_amd64.deb.
-          **Windows:** run the Setup exe to install, or the portable exe to try without installing. The app lives in the system tray.
-
-          **Test status (honest):**
-          - Checked: real Electron on Linux under a virtual display with a window manager and compositor (opaque black in fullscreen and in the window, title bar buttons, on-screen buttons, minimize and restore, Esc and F11 switching, settings upgrade); the browser page served by the real app (rendering, local-only access checks); music detection with real VLC over MPRIS; CI builds both platforms.
-          - Not checked: a real GNOME or Wayland desktop session, any real Windows machine (exe never launched, Windows now-playing untested), Spotify itself, the installed packages being launched.
-          - Lyrics come from the free LRCLIB service. Word timings are estimated from line timings, not true per-word sync.
+          cat > notes.md <<'NOTES'
+          Verso 0.1.5 - Mac test build, plus Ubuntu and Windows. Free, public downloads.
+          
+          New: separate Apple silicon (arm64) and Intel (x64) Mac DMG/ZIP downloads; MediaRemote local now-playing backend; native Mac menu/Dock support; unpacked media binaries; Mac native/app smoke checks in CI. Existing lyric camera, mixed typography, connectors and whole-line highlights stay unchanged. No Spotify API, login or Premium required.
+          
+          Mac: macOS 11+, drag Verso into Applications. Ad-hoc signed only, not Developer ID signed or notarized. macOS may block the first open. If macOS offers it, verify this release then use System Settings > Privacy & Security > Open Anyway. Do not disable Gatekeeper. Managed Macs may disallow opening. Intel and Apple silicon downloads are separate.
+          
+          Quit the older Verso from its tray/menu before installing over it. Windows: Setup or portable exe. Ubuntu: AppImage or deb.
+          
+          Testing: CI packages three platforms. Mac smoke tests exercise the native addon and launch the packaged host-architecture app with demo lyrics, not live Spotify. Real Spotify Free, Mac Gatekeeper/install flow, Intel/Apple silicon on-device playback and Windows runtime remain unverified. Linux media/browser tests from 0.1.4 remain the prior proof. Spotify desktop must report a local OS media session; ads or missing LRCLIB lyrics may show no lyrics. Line timing only, no per-word highlight.
+          
+          Browser: menu > Open lyrics in browser (this PC only), keep Verso running. Same computer only. Older releases retained. See README for setup and exact test limits.
           NOTES
           if gh release view "$TAG" >/dev/null 2>&1; then echo "Release $TAG already exists; refusing to overwrite it. Bump package.json version."; exit 1; fi
           gh release create "$TAG" \
             artifacts/verso-ubuntu-latest/*.AppImage \
             artifacts/verso-ubuntu-latest/*.deb \
             artifacts/verso-windows-latest/*.exe \
-            --title "Verso ${VERSION} (test build)" \
+            artifacts/verso-macos-latest/*.dmg \
+            artifacts/verso-macos-latest/*.zip \
+            --title "Verso ${VERSION} (Mac + PC test build)" \
             --notes-file notes.md
