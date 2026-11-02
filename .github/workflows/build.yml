@@ -48,7 +48,7 @@ jobs:
           VERSION=$(node -p "require('./package.json').version")
           TAG="v${VERSION}"
           cat > notes.md <<NOTES
-          Verso ${VERSION} (test build). Free word-by-word synced lyrics for Ubuntu and Windows. Private repo: log in to GitHub as federicotaar to download.
+          Verso ${VERSION} (test build). Free word-by-word synced lyrics for Ubuntu and Windows. Public repo: downloads work without a GitHub login.
 
           **What changed in 0.1.4**
           - Plain lyrics: the moving highlight that swept across each word is gone (it drifted from the singing). Each line now lights up as a whole when it starts. The camera movement, the connecting lines between verses, the mixed typography and the persistent map stay.
