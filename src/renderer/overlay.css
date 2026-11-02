@@ -4,7 +4,7 @@
   --secondary: #6b7688;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
-html, body { width: 100%; height: 100%; overflow: hidden; background: transparent;
+html, body { width: 100%; height: 100%; overflow: hidden; background: #000;
   font-family: -apple-system, 'Segoe UI', 'Ubuntu', 'Inter', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased; }
 
@@ -62,7 +62,8 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
 
 
 /* fullscreen: true matte black, edge to edge, no rounding, border, blur or shadow */
-html.fs, html.fs body { background: #000; cursor: none; }
+html.fs, html.fs body { background: #000; }
+html.idle, html.idle body { cursor: none; }
 .fs #stage { background: #000; border: 0; border-radius: 0; box-shadow: none;
   backdrop-filter: none; -webkit-backdrop-filter: none; }
 .fs #nowplaying { position: absolute; top: 0; left: 0; right: 0; z-index: 3; border-bottom: 0;
@@ -92,3 +93,11 @@ html.fs, html.fs body { background: #000; cursor: none; }
 /* chain: camera and scale are driven per frame in JS, so no CSS transitions on lines or connectors */
 .mode-chain .line, .mode-chain .line.current { transition: none; }
 #chain-svg path, #chain-svg circle { transition: none; }
+
+/* always opaque matte black; on-screen window buttons (fullscreen has no OS title bar) */
+#stage { background: #000 !important; }
+#ctl { position: fixed; top: 2.2vh; right: 2vw; z-index: 20; display: flex; gap: 10px; transition: opacity .3s; }
+html.idle #ctl { opacity: 0; pointer-events: none; }
+#ctl button { width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(255,255,255,.25); background: rgba(20,20,20,.85);
+  color: #ddd; font-size: 18px; line-height: 1; cursor: pointer; }
+#ctl button:hover { background: #222; color: #fff; }
