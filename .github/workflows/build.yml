@@ -91,15 +91,15 @@ jobs:
           VERSION=$(node -p "require('./package.json').version")
           TAG="v${VERSION}"
           cat > notes.md <<'NOTES'
-          Verso 0.1.5 - Mac test build, plus Ubuntu and Windows. Free, public downloads.
+          Verso 0.1.6 - hand-drawn pen-stroke connectors, plus Mac, Ubuntu and Windows builds. Free, public downloads.
           
-          New: separate Apple silicon (arm64) and Intel (x64) Mac DMG/ZIP downloads; MediaRemote local now-playing backend; native Mac menu/Dock support; unpacked media binaries; Mac native/app smoke checks in CI. Existing lyric camera, mixed typography, connectors and whole-line highlights stay unchanged. No Spotify API, login or Premium required.
+          New: connectors between verses draw like a hand-drawn pen stroke - a main line with a rough twin stroke (seeded per song, no flicker) and a soft glow that pulses slowly, sketched on as the next verse approaches. Lyric map, camera, mixed typography, sung lines staying on the map and whole-line lighting stay unchanged. Mac (Apple silicon and Intel), Ubuntu and Windows packages. No Spotify API, login or Premium required.
           
           Mac: macOS 11+, drag Verso into Applications. Ad-hoc signed only, not Developer ID signed or notarized. macOS may block the first open. If macOS offers it, verify this release then use System Settings > Privacy & Security > Open Anyway. Do not disable Gatekeeper. Managed Macs may disallow opening. Intel and Apple silicon downloads are separate.
           
           Quit the older Verso from its tray/menu before installing over it. Windows: Setup or portable exe. Ubuntu: AppImage or deb.
           
-          Testing: CI packages three platforms. Mac smoke tests exercise the native addon and launch the packaged host-architecture app with demo lyrics, not live Spotify. Real Spotify Free, Mac Gatekeeper/install flow, Intel/Apple silicon on-device playback and Windows runtime remain unverified. Linux media/browser tests from 0.1.4 remain the prior proof. Spotify desktop must report a local OS media session; ads or missing LRCLIB lyrics may show no lyrics. Line timing only, no per-word highlight.
+          Testing: CI packages three platforms. Mac smoke tests exercise the native addon and launch the packaged host-architecture app with demo lyrics, not live Spotify. The new connectors were screenshot-tested in a headless-Chrome demo harness. Real Spotify Free, Mac Gatekeeper/install flow, Intel/Apple silicon on-device playback and Windows runtime remain unverified. Spotify desktop must report a local OS media session; ads or missing LRCLIB lyrics may show no lyrics. Line timing only, no per-word highlight.
           
           Browser: menu > Open lyrics in browser (this PC only), keep Verso running. Same computer only. Older releases retained. See README for setup and exact test limits.
           NOTES
@@ -110,5 +110,5 @@ jobs:
             artifacts/verso-windows-latest/*.exe \
             artifacts/verso-macos-latest/*.dmg \
             artifacts/verso-macos-latest/*.zip \
-            --title "Verso ${VERSION} (Mac + PC test build)" \
+            --title "Verso ${VERSION} (Mac + PC)" \
             --notes-file notes.md
