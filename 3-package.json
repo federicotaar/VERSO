@@ -1,0 +1,75 @@
+{
+  "name": "verso",
+  "version": "0.1.6",
+  "description": "Free fullscreen synced lyrics for macOS, Ubuntu and Windows.",
+  "main": "src/main.js",
+  "license": "MIT",
+  "author": {
+    "name": "Federico Taranu",
+    "email": "federicotaar@users.noreply.github.com"
+  },
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder",
+    "test": "node test/parse.test.js"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0"
+  },
+  "dependencies": {
+    "now-playing-media": "^0.2.0"
+  },
+  "build": {
+    "appId": "site.federicotaranu.verso",
+    "productName": "Verso",
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        "portable",
+        "nsis"
+      ]
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Audio"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        }
+      ],
+      "category": "public.app-category.music",
+      "minimumSystemVersion": "11.0",
+      "identity": "-",
+      "hardenedRuntime": false,
+      "notarize": false,
+      "artifactName": "Verso-${version}-mac-${arch}.${ext}"
+    },
+    "asarUnpack": [
+      "node_modules/now-playing-media/prebuilds/**/*"
+    ]
+  }
+}
