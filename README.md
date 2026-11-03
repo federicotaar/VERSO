@@ -6,7 +6,7 @@ Free fullscreen lyrics for **macOS, Ubuntu and Windows**. Original code, no Spot
 
 ## The lyric map
 
-A quiet black canvas, mixed typography, connected verses and a moving camera. Each lyric line lights up whole when it starts. The drifting per-word highlight was removed in 0.1.4; this release keeps that choice and the existing camera, connectors and styles. Fullscreen is the default; Esc, F11 or Ctrl/Cmd+Shift+F switches to a normal window.
+A quiet black canvas, mixed typography, connected verses and a moving camera. Each lyric line lights up whole when it starts. Connectors between verses are now drawn like a hand-drawn pen stroke: a main line with a rough twin stroke and a soft pulsing glow, sketched onto the map as the next verse approaches. The drifting per-word highlight was removed in 0.1.4; that choice stays. Fullscreen is the default; Esc, F11 or Ctrl/Cmd+Shift+F switches to a normal window.
 
 ## Install
 
@@ -14,9 +14,9 @@ Fully quit any older Verso first using its tray/menu-bar icon > Quit. Install ov
 
 | System | Download | Install |
 | --- | --- | --- |
-| Mac, Apple silicon (M1 or newer) | `Verso-0.1.5-mac-arm64.dmg` | Open the disk image, drag Verso to Applications, eject it, then open Verso from Applications. |
-| Mac, Intel | `Verso-0.1.5-mac-x64.dmg` | Same steps. Requires macOS 11 or newer. |
-| Ubuntu x64 | `.deb` or `.AppImage` | `sudo apt install ./verso_0.1.5_amd64.deb`, or `chmod +x Verso-0.1.5.AppImage` and launch it. |
+| Mac, Apple silicon (M1 or newer) | `Verso-0.1.6-mac-arm64.dmg` | Open the disk image, drag Verso to Applications, eject it, then open Verso from Applications. |
+| Mac, Intel | `Verso-0.1.6-mac-x64.dmg` | Same steps. Requires macOS 11 or newer. |
+| Ubuntu x64 | `.deb` or `.AppImage` | `sudo apt install ./verso_0.1.6_amd64.deb`, or `chmod +x Verso-0.1.6.AppImage` and launch it. |
 | Windows x64 | Setup `.exe` or portable `.exe` | Run the installer, or open the portable build. |
 
 Mac ZIP downloads are also available. The Mac app is **ad-hoc signed, not Apple Developer ID signed or notarized**. Apple may block an internet download on first open. If macOS offers it, use System Settings > Privacy & Security > Open Anyway after verifying that the download is this project's release. Do not disable Gatekeeper system-wide. Managed Macs may not permit an override. No paid signing account is used.
@@ -42,10 +42,11 @@ Menu > **Open lyrics in browser (this PC only)** starts the local server and ope
 ## Status
 
 - **Implemented:** line-synced lyric map, connected verses, moving camera, mixed fonts, fullscreen/window controls, album-art palette when available, optional keep-awake, local browser mirror.
-- **New in 0.1.5:** macOS Intel and Apple silicon packaging, unpacked native media binaries, explicit pre-package ad-hoc resource/app sealing with strict signature verification, native app menu/Dock handling, slower Mac media polling, background-rendering and fresh lyric-DOM animation initialization plus a suspended-animation watchdog for fullscreen transitions/local browser mirroring, CI native-addon and app-launch checks.
+- **New in 0.1.6:** hand-drawn pen-stroke connectors on the lyric map - each verse link is a main stroke with a seeded rough twin (fixed per song, no flicker) and a wide soft glow that pulses slowly like a visualizer. Sung lines still shrink and stay on the map; the camera, path layout, mixed typography and whole-line lighting are unchanged.
+- **In 0.1.5:** macOS Intel and Apple silicon packaging, unpacked native media binaries, explicit pre-package ad-hoc resource/app sealing with strict signature verification, native app menu/Dock handling, slower Mac media polling, background-rendering and fresh lyric-DOM animation initialization plus a suspended-animation watchdog for fullscreen transitions/local browser mirroring, CI native-addon and app-launch checks.
 - **Previously checked:** Linux Electron under Xvfb with a window manager; VLC MPRIS; emulated Spotify-style MPRIS through LRCLIB to the browser; browser rendering and cross-origin access rejection.
 - **Not yet verified on a user's machine:** real Spotify Free on any OS; actual Windows install; Mac download/Gatekeeper override, real music position/seek accuracy and live menu-bar/fullscreen behavior. CI smoke tests are not a substitute for these.
-- **Not included:** lock-screen mode, true word-timed karaoke, handwritten connector redesign or a new 3D visualizer. Existing visual styles are unchanged.
+- **Not included:** lock-screen mode or true word-timed karaoke. Connector strokes are hand-drawn styling on the existing 2D map, not a full 3D scene.
 
 ## Lyrics and privacy
 
