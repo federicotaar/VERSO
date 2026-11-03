@@ -79,7 +79,14 @@ function chainBuild() {
   chainCells = chainLayout(lineEls.length); cam = null;
   lineEls.forEach(le => { le.s = 1; le.o = 0; le.px = 0; le.py = 0; });
   for (let i = 0; i < lineEls.length - 1; i++) {
-    const p = document.createElementNS(SVGNS, 'path'); p.style.opacity = 0; chainSvg.appendChild(p);
+    const mk = cls => { const p = document.createElementNS(SVGNS, 'path'); p.setAttribute('class', cls); p.style.opacity = 0; p.style.visibility = 'hidden'; chainSvg.appendChild(p); return p; };
+    // each connector is one hand-drawn pen stroke: a main line, a rough twin redrawn
+    // with seeded jitter (never flickers), and a wide soft glow for the visualizer feel
+    const p = mk('pen-main');
+    p.sketch = mk('pen-sketch');
+    p.glow = mk('pen-glow');
+    const jr = mulberry(i * 7919 + 1013);
+    p.jit = [jr(), jr(), jr(), jr()].map(v => (v - 0.5) * 2);
     p.dots = [0, 1].map(() => { const c = document.createElementNS(SVGNS, 'circle'); c.setAttribute('r', 3.2); c.style.opacity = 0; chainSvg.appendChild(c); return c; });
     chainPaths.push(p);
   }
@@ -113,7 +120,10 @@ function chainRender(pos, cur) {
   const nextStart = cur + 1 < lineEls.length ? lineEls[cur + 1].line.startMs : Infinity;
   chainPaths.forEach((p, i) => {
     const n = i + 1, age = cur - n;
-    const hide = () => { p.style.opacity = 0; p.dots.forEach(c => c.style.opacity = 0); };
+    const hide = () => {
+      for (const q of [p, p.sketch, p.glow]) { q.style.opacity = 0; q.style.visibility = 'hidden'; }
+      p.dots.forEach(c => c.style.opacity = 0);
+    };
     if (!(vis[i] || vis[n]) || age < -1 || (age === -1 && i !== cur) || cur < 0 && i !== 0) return hide();
     const a = lineEls[i].el, b = lineEls[n].el;
     const ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect();
@@ -122,17 +132,31 @@ function chainRender(pos, cur) {
     const ta = edge(ra.width / 2 + 12, ra.height / 2 + 10, dx, dy), tb = edge(rb.width / 2 + 12, rb.height / 2 + 10, dx, dy);
     const x1 = ax + dx * ta, y1 = ay + dy * ta, x2 = bx - dx * tb, y2 = by - dy * tb;
     const l2 = Math.hypot(x2 - x1, y2 - y1), wob = (i % 2 ? 1 : -1) * 0.09 * l2, nx = -uy, ny = ux;
-    p.setAttribute('d', `M${x1},${y1} C${x1 + (x2 - x1) * 0.33 + nx * wob},${y1 + (y2 - y1) * 0.33 + ny * wob} ${x1 + (x2 - x1) * 0.66 - nx * wob * 0.8},${y1 + (y2 - y1) * 0.66 - ny * wob * 0.8} ${x2},${y2}`);
-    const L = p.getTotalLength(); p.style.strokeDasharray = L;
+    const dMain = `M${x1},${y1} C${x1 + (x2 - x1) * 0.33 + nx * wob},${y1 + (y2 - y1) * 0.33 + ny * wob} ${x1 + (x2 - x1) * 0.66 - nx * wob * 0.8},${y1 + (y2 - y1) * 0.66 - ny * wob * 0.8} ${x2},${y2}`;
+    p.setAttribute('d', dMain);
+    p.glow.setAttribute('d', dMain);
+    // hand-drawn twin: the same connector redrawn with a fixed pen wobble
+    const j = p.jit, jw = Math.min(26, 0.05 * l2 + 5);
+    const dPen = `M${x1 + j[0] * 1.6},${y1 + j[1] * 1.6} C${x1 + (x2 - x1) * 0.31 + nx * (wob + j[2] * jw)},${y1 + (y2 - y1) * 0.31 + ny * (wob + j[2] * jw)} ${x1 + (x2 - x1) * 0.69 - nx * (wob * 0.8 + j[3] * jw)},${y1 + (y2 - y1) * 0.69 - ny * (wob * 0.8 + j[3] * jw)} ${x2 + j[2] * 1.6},${y2 + j[3] * 1.6}`;
+    p.sketch.setAttribute('d', dPen);
+    const L = p.getTotalLength();
     let prog = 1;
     if (age === -1) prog = Math.max(0, Math.min(1, (pos - (nextStart - CH_LEAD)) / CH_LEAD));
-    p.style.strokeDashoffset = L * (1 - prog);
     const op = prog > 0 ? 0.9 * (age === -1 ? lineEls[i].o : Math.min(lineEls[i].o, lineEls[n].o)) : 0;
+    const breathe = 0.7 + 0.3 * Math.sin(pos / 420 + i * 1.71);  // slow visualizer pulse on the glow
+    for (const q of [p, p.sketch, p.glow]) {
+      q.style.strokeDasharray = L;
+      q.style.strokeDashoffset = L * (1 - prog);
+      q.style.visibility = op > 0 ? 'visible' : 'hidden';
+    }
     p.style.opacity = op;
+    p.sketch.style.opacity = op * 0.5;
+    p.glow.style.opacity = op * 0.3 * breathe;
     p.dots[0].setAttribute('cx', x1); p.dots[0].setAttribute('cy', y1); p.dots[1].setAttribute('cx', x2); p.dots[1].setAttribute('cy', y2);
     p.dots[0].style.opacity = op; p.dots[1].style.opacity = prog >= 0.98 ? op : 0;
   });
 }
+
 // one handwriting accent word per line: the longest word (min 4 letters), first on ties
 function accentIndex(words) {
   let best = -1, len = 3;
