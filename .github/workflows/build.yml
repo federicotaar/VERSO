@@ -17,7 +17,7 @@ jobs:
         with:
           node-version: 22
       - run: npm ci
-      - run: node test/parse.test.js
+      - run: npm test
       - name: Build (Linux)
         if: runner.os == 'Linux'
         run: npx electron-builder --linux AppImage deb --publish never
