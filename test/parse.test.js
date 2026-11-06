@@ -41,4 +41,18 @@ const { iconFor } = require('../src/renderer/icons');
 assert.strictEqual(iconFor('amore'), '❤️');
 assert.strictEqual(iconFor('zzzznope'), null);
 
+
+// repeated-chorus LRC: several timestamps on one line each produce a line
+m = parseLrc('[ar:Someone]\r\n[00:10.00][00:50.00]chorus\r\n[00:20.00]verse\r\n[01:05.5]end');
+assert.deepStrictEqual(m.lines.map(l => [l.startMs, l.text]), [[10000, 'chorus'], [20000, 'verse'], [50000, 'chorus'], [65500, 'end']]);
+assert.strictEqual(m.lines[0].endMs, 20000);
+assert.strictEqual(m.lines[2].endMs, 65500);
+// metadata tags and blank lyric lines never become lyric text
+assert.ok(!m.lines.some(l => /ar:/.test(l.text)));
+assert.strictEqual(parseLrc('[00:01.00]\n[00:02.00]x').lines.length, 1);
+// enhanced word tags shift with each repeated timestamp
+m = parseLrc('[00:01.00][00:11.00]<00:01.00>a <00:01.50>b\n[00:20.00]z');
+assert.strictEqual(m.lines[1].startMs, 11000);
+assert.strictEqual(m.lines[1].words[1].startMs, 11500);
+
 console.log('ALL TESTS PASS');
