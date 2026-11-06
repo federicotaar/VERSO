@@ -8,12 +8,13 @@ function tsToMs(tag) {
 
 function parseLrc(lrc) {
   const out = [];
-  const lineRe = /\[(\d+:\d+(?:\.\d+)?)\](.*)/g;
+  // A line may carry several leading timestamps (repeated chorus): [00:10.00][00:50.00]text
+  const lineRe = /^((?:[ \t]*\[\d+:\d+(?:\.\d+)?\])+)(.*)$/gm;
   let match;
   while ((match = lineRe.exec(lrc)) !== null) {
-    const startMs = tsToMs(match[1]);
-    let body = match[2];
-    if (startMs === null) continue;
+    const starts = [...match[1].matchAll(/\[(\d+:\d+(?:\.\d+)?)\]/g)].map(x => tsToMs(x[1])).filter(x => x !== null);
+    let body = match[2].replace(/\r$/, '');
+    if (!starts.length) continue;
     // enhanced LRC word tags: <mm:ss.xx>word
     const words = [];
     const wordRe = /<(\d+:\d+(?:\.\d+)?)>([^<]*)/g;
@@ -28,7 +29,13 @@ function parseLrc(lrc) {
     }
     const text = hasWordTags ? words.map(x => x.text).join('').trim()
                              : body.replace(/<[^>]*>/g, '').trim();
-    out.push({ startMs, endMs: null, text, words: hasWordTags && words.length ? words : null });
+    starts.forEach((startMs, i) => {
+      const shift = startMs - starts[0];
+      const ws = hasWordTags && words.length
+        ? words.map(x => ({ text: x.text, startMs: x.startMs + shift, endMs: x.endMs === null ? null : x.endMs + shift }))
+        : null;
+      out.push({ startMs, endMs: null, text, words: ws });
+    });
   }
   out.sort((a, b) => a.startMs - b.startMs);
   for (let i = 0; i < out.length; i++) {
