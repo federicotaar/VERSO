@@ -71,5 +71,20 @@
     "asarUnpack": [
       "node_modules/now-playing-media/prebuilds/**/*"
     ]
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/federicotaar/VERSO.git"
+  },
+  "bugs": "https://github.com/federicotaar/VERSO/issues",
+  "homepage": "https://github.com/federicotaar/VERSO#readme",
+  "keywords": [
+    "lyrics",
+    "synced-lyrics",
+    "lrc",
+    "lrclib",
+    "electron",
+    "overlay",
+    "spotify"
+  ]
 }
