@@ -20,6 +20,10 @@ assert.strictEqual(pickBest(track, [r('Alive', 'Bee Gees', 285)]), null);
 assert.strictEqual(pickBest(track, [r("Stayin' Alive", 'Bee Gees', 285, '')]), null);
 assert.strictEqual(pickBest(track, [r("Stayin' Alive", 'Bee Gees', 285, 'x', { instrumental: true })]), null);
 assert.strictEqual(pickBest({ title: '', artist: 'x' }, [r('a', 'x', 1)]), null);
+// duration gate: exactly 3 s off still matches, more does not; non-number durations rejected
+assert.strictEqual(pickBest({ title: 'Alive', artist: 'Bee Gees', durationMs: 283000 }, [r('Alive', 'Bee Gees', 286)]).duration, 286);
+assert.strictEqual(pickBest({ title: 'Alive', artist: 'Bee Gees', durationMs: 283000 }, [r('Alive', 'Bee Gees', 286.5)]), null);
+assert.strictEqual(pickBest({ title: 'Alive', artist: 'Bee Gees', durationMs: 283000 }, [r('Alive', 'Bee Gees', '283')]), null);
 // no reported duration: title+artist must still match
 assert.strictEqual(pickBest({ title: 'Alive', artist: 'Bee Gees' }, [r('Alive', 'Bee Gees', 100)]).duration, 100);
 
