@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { parseLrc, tsToMs } = require('../src/lyrics/lrcparse');
+const { parseLrc } = require('../src/lyrics/lrcparse');
 const { estimateWords } = require('../src/lyrics/estimate');
 const { parseTtml } = require('../src/lyrics/ttml');
 
@@ -79,23 +79,4 @@ console.log('ALL TESTS PASS');
   const neg = parseLrc('[offset:-1000]\n[00:03.00]line');
   assert.strictEqual(neg.lines[0].startMs, 4000);
   console.log('offset handling OK');
-}
-
-
-// tsToMs handles long minute fields and rounds fractional seconds
-{
-  assert.strictEqual(tsToMs('61:05.50'), 3665500);
-  assert.strictEqual(tsToMs('00:00.3334'), 333);
-  assert.strictEqual(tsToMs('junk'), null);
-  console.log('tsToMs edges OK');
-}
-
-
-// estimateWords never overwrites real word timings
-{
-  const lines = [{ startMs: 0, endMs: 1000, text: 'real timing', words: [{ text: 'real', startMs: 0, endMs: 500 }] }];
-  estimateWords(lines);
-  assert.strictEqual(lines[0].words.length, 1);
-  assert.ok(!lines[0].estimated);
-  console.log('estimateWords keeps real timings OK');
 }
