@@ -63,9 +63,20 @@ assert.strictEqual(m.lines[1].words[1].startMs, 11500);
   const parsed = parseLrc(withTags);
   assert.strictEqual(parsed.lines.length, 2, 'ID tags must be skipped');
   assert.strictEqual(parsed.lines[0].text, 'real line');
-  assert.strictEqual(parsed.lines[0].startMs, 3000, 'timing must ignore tags');
-  assert.strictEqual(parsed.lines[1].endMs, 11000, 'last line keeps the 5s tail');
+  assert.strictEqual(parsed.lines[0].startMs, 2500, 'offset applies, other tags do not disturb timing');
+  assert.strictEqual(parsed.lines[1].endMs, 10500, 'last line keeps the 5s tail');
   console.log('ID tag handling OK');
 }
 
 console.log('ALL TESTS PASS');
+
+
+// [offset:] shifts every timestamp: + makes lyrics appear sooner
+{
+  const parsed = parseLrc('[offset:+500]\n[00:03.00]line one\n[00:06.00]line two');
+  assert.strictEqual(parsed.lines[0].startMs, 2500);
+  assert.strictEqual(parsed.lines[1].startMs, 5500);
+  const neg = parseLrc('[offset:-1000]\n[00:03.00]line');
+  assert.strictEqual(neg.lines[0].startMs, 4000);
+  console.log('offset handling OK');
+}
