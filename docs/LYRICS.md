@@ -1,0 +1,22 @@
+# How VERSO gets lyrics
+
+The lyrics pipeline, from a playing song to timed lines on the overlay.
+Source: `src/lyrics/` and `src/nowplaying.js`.
+
+1. **What is playing**: `now-playing-media` reads the OS media session
+   (title, artist, duration, play/pause, position). This is why Spotify Free
+   works: the paid Web API is never touched.
+2. **Fetch**: `lyrics/lrclib.js` asks the free, key-less LRCLIB service.
+   Line-level timings only; a 404 simply means no synced lyrics exist.
+3. **Parse**: `lyrics/lrcparse.js` turns standard and enhanced (word-timed)
+   LRC into one model: `{ lines: [{ startMs, endMs, text, words }] }`.
+   ID tags like `[ti:]` and `[offset:]` are ignored by design (tested).
+4. **Fallback**: when a line has no word timings, `lyrics/estimate.js`
+   splits the line's duration across words weighted by length. Callers keep
+   `estimated: true` so the UI can be honest that these are not real
+   timings.
+5. **Future**: `lyrics/ttml.js` parses TTML word timings for a future
+   authorized Apple Music sign-in; it is not wired to any provider yet.
+
+Everything after step 2 is pure functions with no network and no
+credentials, covered by `test/parse.test.js`.
