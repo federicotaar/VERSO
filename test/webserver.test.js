@@ -45,3 +45,15 @@ function get(path, headers = {}, method = 'GET') {
   web.stop();
   console.log('WEBSERVER TESTS PASS');
 })().catch(e => { console.error(e); process.exit(1); });
+
+// invalid VERSO_WEB_PORT falls back to 17653 instead of breaking listen()
+{
+  const { execFileSync } = require('child_process');
+  for (const [env, want] of [['abc', '17653'], ['0', '17653'], ['99999', '17653'], ['17654', '17654']]) {
+    const out = execFileSync(process.execPath, ['-e',
+      `process.env.VERSO_WEB_PORT=${JSON.stringify(env)};process.stdout.write(String(require('./src/webserver.js').PORT))`],
+      { cwd: __dirname + '/..' }).toString();
+    assert.strictEqual(out, want, `VERSO_WEB_PORT=${env}`);
+  }
+  console.log('PORT FALLBACK TESTS PASS');
+}
