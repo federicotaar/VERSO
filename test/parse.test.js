@@ -89,3 +89,13 @@ console.log('ALL TESTS PASS');
   assert.strictEqual(tsToMs('junk'), null);
   console.log('tsToMs edges OK');
 }
+
+
+// estimateWords never overwrites real word timings
+{
+  const lines = [{ startMs: 0, endMs: 1000, text: 'real timing', words: [{ text: 'real', startMs: 0, endMs: 500 }] }];
+  estimateWords(lines);
+  assert.strictEqual(lines[0].words.length, 1);
+  assert.ok(!lines[0].estimated);
+  console.log('estimateWords keeps real timings OK');
+}
