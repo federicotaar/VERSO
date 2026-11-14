@@ -111,3 +111,20 @@ console.log('ALL TESTS PASS');
   assert.strictEqual(m.lines[0].words[0].endMs, 2000);
   assert.strictEqual(m.lines[2].words[0].endMs, 3601000);
 }
+
+// TTML with line-level timing only (no word spans): the lines are kept,
+// words:null like parseLrc output, so callers can estimate word timings
+{
+  const t = '<tt><body><div><p begin="10s" end="12s">line one</p>'
+          + '<p begin="13s" end="14s"><span begin="13s" end="14s">word</span> timed</p></div></body></tt>';
+  m = parseTtml(t);
+  assert.strictEqual(m.lines.length, 2);
+  assert.strictEqual(m.lines[0].text, 'line one');
+  assert.strictEqual(m.lines[0].words, null);
+  assert.strictEqual(m.lines[0].startMs, 10000);
+  assert.strictEqual(m.lines[1].text, 'word timed');
+  assert.strictEqual(m.lines[1].words.length, 1);
+  estimateWords(m.lines);
+  assert.strictEqual(m.lines[0].estimated, true);
+  assert.ok(m.lines[0].words.length === 2);
+}
