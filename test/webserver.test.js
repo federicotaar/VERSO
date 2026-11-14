@@ -31,6 +31,17 @@ function get(path, headers = {}, method = 'GET') {
   assert.strictEqual((await get('/api/state', {}, 'POST')).status, 403, 'read-only');
   assert.strictEqual((await get('/../package.json')).status, 404, 'no path traversal');
   assert.strictEqual(r.headers['access-control-allow-origin'], undefined);
+  // SSE: /api/events clients receive broadcast messages
+  const sse = await new Promise((resolve, reject) => {
+    const req = http.request({ host: '127.0.0.1', port: 17971, path: '/api/events', headers: { Host: '127.0.0.1:17971' } }, res => {
+      let b = '';
+      res.on('data', c => { b += c; if (b.includes('event: ping')) { res.destroy(); resolve(b); } });
+    });
+    req.on('error', reject);
+    req.end();
+    setTimeout(() => web.broadcast('ping', { n: 1 }), 100);
+  });
+  assert.ok(sse.includes('data: {"n":1}'), 'broadcast payload');
   web.stop();
   console.log('WEBSERVER TESTS PASS');
 })().catch(e => { console.error(e); process.exit(1); });
