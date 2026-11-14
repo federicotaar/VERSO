@@ -1,3 +1,7 @@
+// Lyrics parsing tests: standard LRC, repeated-timestamp lines and
+// enhanced word-timed LRC through parseLrc, TTML through parseTtml, and the
+// honest estimated-timing fallback. No network, no Electron: run with
+// `node test/parse.test.js`.
 const assert = require('assert');
 const { parseLrc } = require('../src/lyrics/lrcparse');
 const { estimateWords } = require('../src/lyrics/estimate');
