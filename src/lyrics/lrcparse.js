@@ -8,6 +8,10 @@ function tsToMs(tag) {
 
 function parseLrc(lrc) {
   const out = [];
+  // [offset:+/-ms] shifts every timestamp; per the LRC spec + makes lyrics
+  // appear sooner, so it is SUBTRACTED from the raw times.
+  const offsetMatch = lrc.match(/^\s*\[offset:\s*([+-]?\d+)\s*\]/m);
+  const offsetMs = offsetMatch ? parseInt(offsetMatch[1], 10) : 0;
   // A line may carry several leading timestamps (repeated chorus): [00:10.00][00:50.00]text
   const lineRe = /^((?:[ \t]*\[\d+:\d+(?:\.\d+)?\])+)(.*)$/gm;
   let match;
@@ -29,12 +33,12 @@ function parseLrc(lrc) {
     }
     const text = hasWordTags ? words.map(x => x.text).join('').trim()
                              : body.replace(/<[^>]*>/g, '').trim();
-    starts.forEach((startMs, i) => {
-      const shift = startMs - starts[0];
+    starts.forEach((startMs) => {
+      const shift = startMs - starts[0] - offsetMs;
       const ws = hasWordTags && words.length
         ? words.map(x => ({ text: x.text, startMs: x.startMs + shift, endMs: x.endMs === null ? null : x.endMs + shift }))
         : null;
-      out.push({ startMs, endMs: null, text, words: ws });
+      out.push({ startMs: startMs - offsetMs, endMs: null, text, words: ws });
     });
   }
   out.sort((a, b) => a.startMs - b.startMs);
