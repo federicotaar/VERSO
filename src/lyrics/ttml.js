@@ -24,11 +24,15 @@ function parseTtml(ttml) {
       const w = { text: strip(sm[3]), startMs: toMs(sm[1]), endMs: toMs(sm[2]) };
       line.words.push(w);
     }
-    line.text = line.words.length ? line.words.map(w => w.text).join('').replace(/\s+/g, ' ').trim()
-                                  : strip(m[3]).trim();
+    // Line text comes from the whole paragraph content: text between or
+    // after word spans (spaces, punctuation) is part of the line too.
+    line.text = strip(m[3]).replace(/\s+/g, ' ').trim();
+    // Lines with line-level timing only (no word spans) stay in the model
+    // with words:null, like parseLrc output: callers estimate the words.
+    if (!line.words.length) line.words = null;
     if (line.text) lines.push(line);
   }
-  return { lines: lines.filter(l => l.words.length) };
+  return { lines };
 }
 
 
