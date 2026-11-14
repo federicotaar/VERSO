@@ -5,7 +5,9 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-const PORT = parseInt(process.env.VERSO_WEB_PORT || '17653', 10);
+const envPort = parseInt(process.env.VERSO_WEB_PORT || '17653', 10);
+// an invalid VERSO_WEB_PORT (NaN or out of range) would make listen() throw
+const PORT = (envPort >= 1 && envPort <= 65535) ? envPort : 17653;
 const RENDERER = path.join(__dirname, 'renderer');
 const FILES = {
   '/overlay.css': 'text/css; charset=utf-8',
