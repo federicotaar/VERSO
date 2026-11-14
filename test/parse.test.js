@@ -99,3 +99,15 @@ console.log('ALL TESTS PASS');
   assert.ok(!lines[0].estimated);
   console.log('estimateWords keeps real timings OK');
 }
+
+// TTML offset times carry units: 500ms is half a second, not 500 seconds
+{
+  const t = '<tt><body><div><p begin="1.5s" end="2500ms"><span begin="1.5s" end="2s">hi</span></p>'
+          + '<p begin="1m" end="1.5m"><span begin="1m" end="61s">there</span></p>'
+          + '<p begin="1h" end="90m"><span begin="1h" end="3601s">friend</span></p></div></body></tt>';
+  m = parseTtml(t);
+  assert.deepStrictEqual(m.lines.map(l => [l.startMs, l.endMs]),
+    [[1500, 2500], [60000, 90000], [3600000, 5400000]]);
+  assert.strictEqual(m.lines[0].words[0].endMs, 2000);
+  assert.strictEqual(m.lines[2].words[0].endMs, 3601000);
+}
