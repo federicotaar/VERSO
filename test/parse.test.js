@@ -1,7 +1,3 @@
-// Lyrics parsing tests: standard LRC, repeated-timestamp lines and
-// enhanced word-timed LRC through parseLrc, TTML through parseTtml, and the
-// honest estimated-timing fallback. No network, no Electron: run with
-// `node test/parse.test.js`.
 const assert = require('assert');
 const { parseLrc } = require('../src/lyrics/lrcparse');
 const { estimateWords } = require('../src/lyrics/estimate');
@@ -58,5 +54,18 @@ assert.strictEqual(parseLrc('[00:01.00]\n[00:02.00]x').lines.length, 1);
 m = parseLrc('[00:01.00][00:11.00]<00:01.00>a <00:01.50>b\n[00:20.00]z');
 assert.strictEqual(m.lines[1].startMs, 11000);
 assert.strictEqual(m.lines[1].words[1].startMs, 11500);
+
+
+// LRC metadata/ID tags ([ti:], [ar:], [offset:]...) must not become lyric
+// lines and must not disturb the timing of real lines.
+{
+  const withTags = '[ti:Song Title]\n[ar:Artist]\n[offset:+500]\n[00:03.00]real line\n[00:06.00]next';
+  const parsed = parseLrc(withTags);
+  assert.strictEqual(parsed.lines.length, 2, 'ID tags must be skipped');
+  assert.strictEqual(parsed.lines[0].text, 'real line');
+  assert.strictEqual(parsed.lines[0].startMs, 3000, 'timing must ignore tags');
+  assert.strictEqual(parsed.lines[1].endMs, 11000, 'last line keeps the 5s tail');
+  console.log('ID tag handling OK');
+}
 
 console.log('ALL TESTS PASS');
