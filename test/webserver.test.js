@@ -42,6 +42,15 @@ function get(path, headers = {}, method = 'GET') {
     setTimeout(() => web.broadcast('ping', { n: 1 }), 100);
   });
   assert.ok(sse.includes('data: {"n":1}'), 'broadcast payload');
+  // SSE stream carries the same hardening headers as the other responses
+  const sseHeaders = await new Promise((resolve, reject) => {
+    const req = http.request({ host: '127.0.0.1', port: 17971, path: '/api/events', headers: { Host: '127.0.0.1:17971' } }, res => {
+      const h = res.headers; res.destroy(); resolve(h);
+    });
+    req.on('error', reject); req.end();
+  });
+  assert.strictEqual(sseHeaders['x-content-type-options'], 'nosniff');
+  assert.strictEqual(sseHeaders['cross-origin-resource-policy'], 'same-origin');
   web.stop();
   console.log('WEBSERVER TESTS PASS');
 })().catch(e => { console.error(e); process.exit(1); });
