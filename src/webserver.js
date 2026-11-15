@@ -48,7 +48,7 @@ function handle(req, res) {
   }
   if (p === '/api/state') return send(200, 'application/json', JSON.stringify(getState()));
   if (p === '/api/events') {
-    res.writeHead(200, { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-store', Connection: 'keep-alive' });
+    res.writeHead(200, { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-store', Connection: 'keep-alive', 'X-Content-Type-Options': 'nosniff', 'Cross-Origin-Resource-Policy': 'same-origin' });
     res.write('retry: 1500\n\n');
     clients.add(res);
     req.on('close', () => clients.delete(res));
