@@ -2,6 +2,17 @@
 
 VERSO's milestones, newest first. Downloads are on the Releases page.
 
+## Unreleased
+
+- The `[offset:]` LRC metadata tag is honored (a positive offset shows lyrics
+  earlier), and offset-time TTML units (`500ms`, `2s`, `1.5m`, `1h`) parse
+  correctly.
+- Lyrics matching also ignores trailing `feat.`/`ft.` credits without
+  brackets and `(Live ...)` editions, and rejects non-number durations from
+  the provider.
+- The local web page's event stream now carries the same hardening headers as
+  its other responses, and an invalid `VERSO_WEB_PORT` falls back to 17653.
+
 ## 0.1.7 (2026-11-06)
 
 - Polished 0.1.6 release notes and version bump.
