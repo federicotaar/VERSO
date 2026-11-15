@@ -6,6 +6,7 @@ assert.strictEqual(norm("Stayin' Alive - Remastered"), norm('Stayin Alive (Remas
 assert.strictEqual(norm('Mamma Mia - 2011 Remaster'), 'mamma mia');
 assert.strictEqual(norm('Fiori rosa, fiori di pesco'), norm('Fiori Rosa Fiori Di Pesco'));
 assert.strictEqual(norm('Industry Baby (feat. Jack Harlow)'), 'industry baby');
+assert.strictEqual(norm('The Chain (Live at Wembley)'), 'the chain');
 assert.strictEqual(norm('Godzilla feat. Juice WRLD'), 'godzilla');
 assert.strictEqual(norm('Moonlight ft. Kali Uchis'), 'moonlight');
 assert.strictEqual(norm('Café Tacvba'), 'cafe tacvba');
