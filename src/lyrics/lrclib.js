@@ -38,7 +38,7 @@ function norm(str) {
     .replace(/\s+-\s+(?:\d{4}\s+)?(?:remaster(?:ed)?|remix|mono|stereo|live|radio edit|single version|album version)\b.*$/, '')
     .replace(/[\(\[](?:feat|ft|with)\.?[^\)\]]*[\)\]]/g, '')
     .replace(/\s+(?:feat|ft)\.?\s+[^-]+$/, '')
-    .replace(/[\(\[][^\)\]]*(?:remaster|version|edit|mix)[^\)\]]*[\)\]]/g, '')
+    .replace(/[\(\[][^\)\]]*(?:remaster|version|edit|mix|live)[^\)\]]*[\)\]]/g, '')
     .replace(/&/g, 'and')
     .replace(/[^a-z0-9]+/g, ' ').trim();
 }
