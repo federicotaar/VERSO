@@ -4,9 +4,7 @@ VERSO's milestones, newest first. Downloads are on the Releases page.
 
 ## Unreleased
 
-- The word -> icon map is covered by tests (casing, punctuation stripping,
-  unknown words), the icons suite runs in `npm test`, and a dead `high2`
-  mapping that no word could ever produce was dropped.
+- Docs: LYRICS.md now covers the plain-text branch - when LRCLIB has only unsynced lyrics, they are shown flagged "unsynced" with no fake highlighting.
 
 - The `[offset:]` LRC metadata tag is honored (a positive offset shows lyrics
   earlier), and offset-time TTML units (`500ms`, `2s`, `1.5m`, `1h`) parse
