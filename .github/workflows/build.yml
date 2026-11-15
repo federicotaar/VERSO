@@ -1,3 +1,7 @@
+# Builds and tests VERSO on Ubuntu, Windows and macOS on every push to main and
+# # on manual dispatch. fail-fast is off so one OS failure does not hide the
+# # others.
+
 name: build
 on:
   push:
