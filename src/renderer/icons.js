@@ -26,7 +26,7 @@ const ICONS = {
   gun:'🔫',pistola:'🔫',war:'⚔️',guerra:'⚔️',fight:'🥊',lotta:'🥊',king:'👑',re:'👑',queen:'👑',regina:'👑',
   god:'🙏',dio:'🙏',pray:'🙏',prega:'🙏',church:'⛪',chiesa:'⛪',
   run:'🏃',corri:'🏃',fast:'⚡',veloce:'⚡',slow:'🐌',piano:'🐌',
-  up:'⬆️',su:'⬆️',down:'⬇️',giu:'⬇️',high2:'⬆️',low:'⬇️',basso:'⬇️',
+  up:'⬆️',su:'⬆️',down:'⬇️',giu:'⬇️',low:'⬇️',basso:'⬇️',
   light:'💡',luce:'💡',dark:'🌑',buio:'🌑',shadow:'👤',ombra:'👤',
   free:'🕊️',libero:'🕊️',libera:'🕊️',chains:'⛓️',catene:'⛓️',prison:'⛓️',prigione:'⛓️',
   summer:'🏖️',estate:'🏖️',winter:'🥶',inverno:'🥶',spring:'🌸',primavera:'🌸',autumn:'🍂',autunno:'🍂',
