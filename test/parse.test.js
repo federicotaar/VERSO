@@ -128,3 +128,14 @@ console.log('ALL TESTS PASS');
   assert.strictEqual(m.lines[0].estimated, true);
   assert.ok(m.lines[0].words.length === 2);
 }
+
+
+// estimateWords: a single-word line gets the whole line duration,
+// and lines without text are left untouched
+{
+  const { estimateWords } = require('../src/lyrics/estimate');
+  const lines = estimateWords([{ startMs: 1000, endMs: 4000, text: 'Hello' }, { startMs: 5000, endMs: 8000, text: '   ' }]);
+  assert.deepStrictEqual(lines[0].words, [{ text: 'Hello', startMs: 1000, endMs: 4000 }]);
+  assert.strictEqual(lines[1].words, undefined);
+  console.log('ESTIMATE EDGE TESTS PASS');
+}
