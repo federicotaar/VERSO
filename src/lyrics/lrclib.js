@@ -30,12 +30,14 @@ function getJson(url) {
 }
 
 // Normalise a title/artist for comparison only: case, accents, punctuation,
-// "(feat. X)", and release-edition suffixes such as "- Remastered 2011" are ignored.
+// "(feat. X)" (bracketed or trailing), and release-edition suffixes such as
+// "- Remastered 2011" are ignored.
 function norm(str) {
   return String(str || '').toLowerCase()
     .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .replace(/\s+-\s+(?:\d{4}\s+)?(?:remaster(?:ed)?|remix|mono|stereo|live|radio edit|single version|album version)\b.*$/, '')
     .replace(/[\(\[](?:feat|ft|with)\.?[^\)\]]*[\)\]]/g, '')
+    .replace(/\s+(?:feat|ft)\.?\s+[^-]+$/, '')
     .replace(/[\(\[][^\)\]]*(?:remaster|version|edit|mix)[^\)\]]*[\)\]]/g, '')
     .replace(/&/g, 'and')
     .replace(/[^a-z0-9]+/g, ' ').trim();
