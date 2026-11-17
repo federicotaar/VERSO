@@ -59,3 +59,5 @@ for(const bad of [null,undefined,42])assert.strictEqual(pickBest(bad,[]),null);a
 for(const bad of [NaN,Infinity,-100,'285000'])assert.ok(pickBest({...track,durationMs:bad},[r('Stayin Alive','Bee Gees',285)]));
 
 for(const bad of [true,{},[],42,'   '])assert.strictEqual(pickBest(track,[r('Stayin Alive','Bee Gees',285,bad)]),null);
+
+assert.strictEqual(pickBest(track,[null,{},r('Stayin Alive','Bee Gees',285)]).duration,285);assert.strictEqual(pickBest(track,[r('Stayin Alive','Bee Gees',NaN)]),null);
