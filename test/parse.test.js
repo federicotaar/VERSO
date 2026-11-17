@@ -151,3 +151,5 @@ for(const bad of [null,undefined,42,{}])assert.deepStrictEqual(parseLrc(bad),{li
 {const x=parseLrc('[00:09.00]late\n[00:02.00]early');assert.deepStrictEqual(x.lines.map(l=>l.startMs),[2000,9000]);assert.strictEqual(x.lines[0].endMs,9000);}
 
 {const x=parseLrc('[offset:-700]\r\n[00:01.00][00:03.00]repeat\r\n');assert.deepStrictEqual(x.lines.map(l=>l.startMs),[1700,3700]);assert.ok(x.lines.every(l=>l.text==='repeat'));}
+
+{const real=[{startMs:0,endMs:1,text:'x',words:[{text:'x',startMs:0,endMs:1}]}];const words=real[0].words;estimateWords(real);assert.strictEqual(real[0].words,words);assert.strictEqual(real[0].estimated,undefined);}
