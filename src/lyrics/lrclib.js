@@ -51,7 +51,7 @@ function pickBest(track, results, maxDiffSec = 3) {
   const wantT = norm(track.title), wantA = norm(track.artist);
   if (!wantT || !wantA || !Array.isArray(results)) return null;
   const wantDur=Number.isFinite(track.durationMs)&&track.durationMs>0?track.durationMs/1000:null;
-  const ok = results.filter(r => r && r.syncedLyrics && !r.instrumental
+  const ok = results.filter(r => r && typeof r.syncedLyrics==='string' && r.syncedLyrics.trim() && !r.instrumental
     && norm(r.trackName) === wantT && norm(r.artistName) === wantA
     && (wantDur === null || (typeof r.duration === 'number' && Math.abs(r.duration - wantDur) <= maxDiffSec)));
   if (!ok.length) return null;
