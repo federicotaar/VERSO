@@ -11,6 +11,7 @@ function tsToMs(tag) {
 
 function parseLrc(lrc) {
   const out = [];
+  if(typeof lrc!=='string')return {lines:out};
   // [offset:+/-ms] shifts every timestamp; per the LRC spec + makes lyrics
   // appear sooner, so it is SUBTRACTED from the raw times.
   const offsetMatch = lrc.match(/^\s*\[offset:\s*([+-]?\d+)\s*\]/m);
