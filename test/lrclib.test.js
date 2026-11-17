@@ -55,3 +55,5 @@ assert.strictEqual(pickBest({ title: 'Alive', artist: 'Bee Gees' }, [r('Alive', 
 })().catch(e => { console.error(e); process.exit(1); });
 
 for(const bad of [null,undefined,42])assert.strictEqual(pickBest(bad,[]),null);assert.strictEqual(pickBest(track,{}),null);
+
+for(const bad of [NaN,Infinity,-100,'285000'])assert.ok(pickBest({...track,durationMs:bad},[r('Stayin Alive','Bee Gees',285)]));
