@@ -139,3 +139,5 @@ console.log('ALL TESTS PASS');
   assert.strictEqual(lines[1].words, undefined);
   console.log('ESTIMATE EDGE TESTS PASS');
 }
+
+for(const bad of [null,undefined,42,{},'prefix00:01.00','00:01.00junk','-1:00'])assert.strictEqual(tsToMs(bad),null);
