@@ -4,7 +4,9 @@ function tsToMs(tag) {
   if(typeof tag!=='string')return null;
   const m=tag.match(/^(\d+):(\d+(?:\.\d+)?)$/);
   if (!m) return null;
-  return Math.round((parseInt(m[1], 10) * 60 + parseFloat(m[2])) * 1000);
+  const seconds=Number(m[2]);
+  const ms=Math.round((Number(m[1])*60+seconds)*1000);
+  return seconds<60&&Number.isSafeInteger(ms)?ms:null;
 }
 
 function parseLrc(lrc) {
