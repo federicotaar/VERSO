@@ -47,6 +47,7 @@ function norm(str) {
 // timed lyrics, and (when the player reports a duration) its length is within
 // 3 s. Anything weaker returns null: no lyrics beat the wrong song's lyrics.
 function pickBest(track, results, maxDiffSec = 3) {
+  if(!track||typeof track!=='object')return null;
   const wantT = norm(track.title), wantA = norm(track.artist);
   if (!wantT || !wantA || !Array.isArray(results)) return null;
   const wantDur = track.durationMs ? track.durationMs / 1000 : null;
