@@ -1,7 +1,8 @@
 // Parse standard LRC and enhanced (word-timed) LRC into a unified model:
 // { lines: [{ startMs, endMs, text, words: [{ text, startMs, endMs }] | null }] }
 function tsToMs(tag) {
-  const m = tag.match(/(\d+):(\d+(?:\.\d+)?)/);
+  if(typeof tag!=='string')return null;
+  const m=tag.match(/^(\d+):(\d+(?:\.\d+)?)$/);
   if (!m) return null;
   return Math.round((parseInt(m[1], 10) * 60 + parseFloat(m[2])) * 1000);
 }
