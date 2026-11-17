@@ -143,3 +143,5 @@ console.log('ALL TESTS PASS');
 for(const bad of [null,undefined,42,{},'prefix00:01.00','00:01.00junk','-1:00'])assert.strictEqual(tsToMs(bad),null);
 
 assert.strictEqual(tsToMs('00:60.00'),null);assert.strictEqual(tsToMs('999999999999999999999:01'),null);assert.strictEqual(tsToMs('00:59.999'),59999);
+
+for(const bad of [null,undefined,42,{}])assert.deepStrictEqual(parseLrc(bad),{lines:[]});
