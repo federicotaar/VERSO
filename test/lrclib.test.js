@@ -53,3 +53,5 @@ assert.strictEqual(pickBest({ title: 'Alive', artist: 'Bee Gees' }, [r('Alive', 
   await assert.rejects(fetchLyrics(track, async u => { if (u.includes('/api/search')) throw new Error('HTTP 503'); return null; }));
   console.log('LRCLIB TESTS PASS');
 })().catch(e => { console.error(e); process.exit(1); });
+
+for(const bad of [null,undefined,42])assert.strictEqual(pickBest(bad,[]),null);assert.strictEqual(pickBest(track,{}),null);
