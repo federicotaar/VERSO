@@ -14,7 +14,10 @@ function parseTtml(ttml) {
   const toMs = s => {
     if(typeof s!=="string")return null;
     const m = s.match(/^(?:(\d+):)?(\d+):(\d+(?:\.\d+)?)$/);
-    if (m) return Math.round(((+m[1] || 0) * 3600 + (+m[2]) * 60 + parseFloat(m[3])) * 1000);
+    if (m) {
+      if (+m[3]>=60 || (m[1]!==undefined && +m[2]>=60)) return null;
+      return Math.round(((+m[1] || 0) * 3600 + (+m[2]) * 60 + parseFloat(m[3])) * 1000);
+    }
     // TTML offset times carry a unit: 75.5s, 500ms, 2m, 1h.
     const o = s.match(/^(\d+(?:\.\d+)?)(ms|s|m|h)$/);
     if (o) return Math.round(parseFloat(o[1]) * { ms: 1, s: 1000, m: 60000, h: 3600000 }[o[2]]);
