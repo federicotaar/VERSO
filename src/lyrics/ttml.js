@@ -47,6 +47,7 @@ function parseTtml(ttml) {
     if (!line.words.length) line.words = null;
     if (line.text) lines.push(line);
   }
+  lines.sort((a,b)=>a.startMs-b.startMs);
   return { lines };
 }
 
