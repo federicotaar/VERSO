@@ -177,3 +177,13 @@ for(const bad of [null,undefined,42,{}])assert.deepStrictEqual(parseLrc(bad),{li
  assert.strictEqual(x.lines[0].startMs,1000);
  assert.ok(x.lines.every(l=>Number.isSafeInteger(l.startMs)&&Number.isSafeInteger(l.endMs)));
 }
+
+
+// Malformed backward word tags preserve readable text but never negative word durations.
+{
+ const x=parseLrc('[00:01.00]<00:03.00>first <00:02.00>second');
+ assert.strictEqual(x.lines[0].text,'first second');
+ assert.strictEqual(x.lines[0].words,null);
+ estimateWords(x.lines);
+ assert.ok(x.lines[0].words.every(w=>w.endMs>=w.startMs));
+}
