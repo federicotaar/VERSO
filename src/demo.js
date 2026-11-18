@@ -35,7 +35,7 @@ let start = Date.now();
 async function poll() {
   return {
     ok: true, playing: true,
-    positionMs: (Date.now() - start) % 30000,
+    positionMs: ((Date.now() - start) % DEMO_TRACK.durationMs + DEMO_TRACK.durationMs) % DEMO_TRACK.durationMs,
     track: DEMO_TRACK
   };
 }
