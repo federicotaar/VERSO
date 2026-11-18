@@ -195,3 +195,10 @@ for(const bad of [null,undefined,42,{}])assert.deepStrictEqual(parseLrc(bad),{li
  assert.deepStrictEqual(x.lines.map(l=>l.text),['first','second','third']);
  assert.deepStrictEqual(x.lines.map(l=>l.startMs),[1000,2000,3000]);
 }
+
+
+// Clock components are not offset durations: 61 seconds or minutes is malformed.
+for(const begin of ['00:00:61','00:61:01','01:60.5']) {
+ assert.strictEqual(parseTtml(`<p begin="${begin}" end="3h">bad</p>`).lines.length,0);
+}
+assert.strictEqual(parseTtml('<p begin="61:05" end="62:00">long minutes</p>').lines[0].startMs,3665000);
