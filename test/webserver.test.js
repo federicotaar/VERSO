@@ -66,3 +66,13 @@ function get(path, headers = {}, method = 'GET') {
   }
   console.log('PORT FALLBACK TESTS PASS');
 }
+
+// Trailing junk, fractions and whitespace must not silently select another port.
+{
+ const {execFileSync}=require('child_process');
+ for(const value of ['17971junk','17971.5',' 17971','1e4','0x40']) {
+  const out=execFileSync(process.execPath,['-e',"process.stdout.write(String(require('./src/webserver').PORT))"],
+   {cwd:__dirname+'/..',env:{...process.env,VERSO_WEB_PORT:value}}).toString();
+  assert.strictEqual(out,'17653',value);
+ }
+}
