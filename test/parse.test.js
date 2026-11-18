@@ -202,3 +202,11 @@ for(const begin of ['00:00:61','00:61:01','01:60.5']) {
  assert.strictEqual(parseTtml(`<p begin="${begin}" end="3h">bad</p>`).lines.length,0);
 }
 assert.strictEqual(parseTtml('<p begin="61:05" end="62:00">long minutes</p>').lines[0].startMs,3665000);
+
+
+// Document order is not guaranteed to be playback order in imported TTML.
+{
+ const x=parseTtml('<p begin="10s" end="12s">late</p><p begin="2s" end="4s">early</p>');
+ assert.deepStrictEqual(x.lines.map(l=>l.text),['early','late']);
+ assert.deepStrictEqual(x.lines.map(l=>l.startMs),[2000,10000]);
+}
