@@ -51,6 +51,14 @@ function get(path, headers = {}, method = 'GET') {
   });
   assert.strictEqual(sseHeaders['x-content-type-options'], 'nosniff');
   assert.strictEqual(sseHeaders['cross-origin-resource-policy'], 'same-origin');
+  // A failed snapshot is an HTTP error, not an uncaught process exception.
+  web.stop();
+  await web.start({getState:()=>{throw Error('sensitive internal detail')},log:()=>{}});
+  r=await get('/api/state');
+  assert.strictEqual(r.status,500);
+  assert.strictEqual(JSON.parse(r.body).error,'state unavailable');
+  assert.ok(!r.body.includes('sensitive internal detail'));
+  assert.strictEqual((await get('/overlay.css')).status,200);
   web.stop();
   console.log('WEBSERVER TESTS PASS');
 })().catch(e => { console.error(e); process.exit(1); });
