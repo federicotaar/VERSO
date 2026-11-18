@@ -170,3 +170,10 @@ for(const bad of [null,undefined,42,{}])assert.deepStrictEqual(parseLrc(bad),{li
  assert.strictEqual(invalidWord.lines[0].text,'line remains');
  console.log('TTML FORMAT VARIANTS PASS');
 }
+
+// Huge numeric offsets are corrupt metadata, not usable playback positions.
+{
+ const x=parseLrc('[offset:9999999999999999999999999999999]\n[00:01.00]hello');
+ assert.strictEqual(x.lines[0].startMs,1000);
+ assert.ok(x.lines.every(l=>Number.isSafeInteger(l.startMs)&&Number.isSafeInteger(l.endMs)));
+}
