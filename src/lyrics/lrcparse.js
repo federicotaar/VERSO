@@ -18,7 +18,7 @@ function parseLrc(lrc) {
   const parsedOffset = offsetMatch ? Number(offsetMatch[1]) : 0;
   const offsetMs = Number.isSafeInteger(parsedOffset) ? parsedOffset : 0;
   // A line may carry several leading timestamps (repeated chorus): [00:10.00][00:50.00]text
-  const lineRe = /^((?:[ \t]*\[\d+:\d+(?:\.\d+)?\])+)(.*)$/gm;
+  const lineRe = /^[ \t\uFEFF]*((?:[ \t]*\[\d+:\d+(?:\.\d+)?\])+)(.*)$/gm;
   let match;
   while ((match = lineRe.exec(lrc)) !== null) {
     const starts = [...match[1].matchAll(/\[(\d+:\d+(?:\.\d+)?)\]/g)].map(x => tsToMs(x[1])).filter(x => x !== null);
