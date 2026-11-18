@@ -36,3 +36,18 @@ poll().then(p => {
   assert.ok(typeof p.positionMs === 'number' && p.positionMs >= 0 && p.positionMs < 30000);
   console.log('demo.test.js OK');
 });
+
+// Playback wraps at the declared duration, and wall-clock rollback stays nonnegative.
+(async()=>{
+ const original=Date.now;
+ try {
+  delete require.cache[require.resolve('../src/demo')];
+  Date.now=()=>100000;const demo=require('../src/demo');
+  Date.now=()=>145000;
+  assert.strictEqual((await demo.poll()).positionMs,45000);
+  Date.now=()=>165000;
+  assert.strictEqual((await demo.poll()).positionMs,5000);
+  Date.now=()=>99000;
+  const state=await demo.poll();assert.ok(state.positionMs>=0&&state.positionMs<state.track.durationMs);
+ } finally {Date.now=original;}
+})().catch(e=>{console.error(e);process.exitCode=1;});
