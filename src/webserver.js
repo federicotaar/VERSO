@@ -5,7 +5,8 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-const envPort = parseInt(process.env.VERSO_WEB_PORT || '17653', 10);
+const rawPort=process.env.VERSO_WEB_PORT || '17653';
+const envPort=/^\d+$/.test(rawPort)?Number(rawPort):NaN;
 // an invalid VERSO_WEB_PORT (NaN or out of range) would make listen() throw
 const PORT = (envPort >= 1 && envPort <= 65535) ? envPort : 17653;
 const RENDERER = path.join(__dirname, 'renderer');
