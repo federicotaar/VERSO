@@ -61,3 +61,19 @@ for(const bad of [NaN,Infinity,-100,'285000'])assert.ok(pickBest({...track,durat
 for(const bad of [true,{},[],42,'   '])assert.strictEqual(pickBest(track,[r('Stayin Alive','Bee Gees',285,bad)]),null);
 
 assert.strictEqual(pickBest(track,[null,{},r('Stayin Alive','Bee Gees',285)]).duration,285);assert.strictEqual(pickBest(track,[r('Stayin Alive','Bee Gees',NaN)]),null);
+
+(async()=>{
+ for(const track of [null,{}, {title:' ',artist:'x'},{title:'x',artist:42}]){
+  assert.strictEqual(await fetchLyrics(track,()=>{throw Error('must not request')}),null);
+ }
+ for(const durationMs of [NaN,Infinity,-1,'1000']){
+  await fetchLyrics({title:'x',artist:'y',durationMs},async url=>{
+   assert.strictEqual(new URL(url).searchParams.has('duration'),false);
+   return {plainLyrics:'text'};
+  });
+ }
+ for(const response of [[],42,{instrumental:true,syncedLyrics:'[00:01]wrong'},{syncedLyrics:42,plainLyrics:{}},{plainLyrics:'  '}]){
+  assert.strictEqual(await fetchLyrics({title:'x',artist:'y'},async()=>response),null);
+ }
+ console.log('PROVIDER INPUT AND RESPONSE TESTS PASS');
+})().catch(e=>{console.error(e);process.exitCode=1;});
