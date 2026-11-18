@@ -77,3 +77,9 @@ assert.strictEqual(pickBest(track,[null,{},r('Stayin Alive','Bee Gees',285)]).du
  }
  console.log('PROVIDER INPUT AND RESPONSE TESTS PASS');
 })().catch(e=>{console.error(e);process.exitCode=1;});
+
+// Non-Latin titles/artists remain meaningful and do not collapse into empty strings.
+assert.strictEqual(norm('夜に駆ける'), '夜に駆ける');
+assert.notStrictEqual(norm('夜に駆ける'),norm('群青'));
+assert.strictEqual(pickBest({title:'群青',artist:'ヨアソビ'},[r('群青','ヨアソビ',200)]).trackName,'群青');
+assert.strictEqual(pickBest({title:'群青',artist:'ヨアソビ'},[r('夜に駆ける','ヨアソビ',200)]),null);
