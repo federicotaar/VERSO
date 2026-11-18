@@ -36,11 +36,12 @@ function parseLrc(lrc) {
       words.push({ text: w[2], startMs: wStart, endMs: null });
       lastEnd = wStart;
     }
+    const orderedWords = words.every((w,i) => i===0 || w.startMs>=words[i-1].startMs);
     const text = hasWordTags ? words.map(x => x.text).join('').trim()
                              : body.replace(/<[^>]*>/g, '').trim();
     starts.forEach((startMs) => {
       const shift = startMs - starts[0] - offsetMs;
-      const ws = hasWordTags && words.length
+      const ws = hasWordTags && orderedWords && words.length
         ? words.map(x => ({ text: x.text, startMs: x.startMs + shift, endMs: x.endMs === null ? null : x.endMs + shift }))
         : null;
       out.push({ startMs: startMs - offsetMs, endMs: null, text, words: ws });
