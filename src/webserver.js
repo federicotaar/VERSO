@@ -47,7 +47,10 @@ function handle(req, res) {
     if (p === '/icons.js') body = 'var module = { exports: {} };\n' + body; // the file also targets CommonJS
     return send(200, FILES[p], body);
   }
-  if (p === '/api/state') return send(200, 'application/json', JSON.stringify(getState()));
+  if (p === '/api/state') {
+    try {return send(200, 'application/json', JSON.stringify(getState()));}
+    catch(e){log('state snapshot unavailable');return send(500, 'application/json', '{"error":"state unavailable"}');}
+  }
   if (p === '/api/events') {
     res.writeHead(200, { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-store', Connection: 'keep-alive', 'X-Content-Type-Options': 'nosniff', 'Cross-Origin-Resource-Policy': 'same-origin' });
     res.write('retry: 1500\n\n');
