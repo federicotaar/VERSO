@@ -187,3 +187,11 @@ for(const bad of [null,undefined,42,{}])assert.deepStrictEqual(parseLrc(bad),{li
  estimateWords(x.lines);
  assert.ok(x.lines[0].words.every(w=>w.endMs>=w.startMs));
 }
+
+
+// UTF-8 BOM and harmless indentation must not hide the first lyric line.
+{
+ const x=parseLrc('\uFEFF[00:01.00]first\n  [00:02.00]second\n\t[00:03.00]third');
+ assert.deepStrictEqual(x.lines.map(l=>l.text),['first','second','third']);
+ assert.deepStrictEqual(x.lines.map(l=>l.startMs),[1000,2000,3000]);
+}
