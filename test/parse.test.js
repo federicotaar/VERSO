@@ -153,3 +153,20 @@ for(const bad of [null,undefined,42,{}])assert.deepStrictEqual(parseLrc(bad),{li
 {const x=parseLrc('[offset:-700]\r\n[00:01.00][00:03.00]repeat\r\n');assert.deepStrictEqual(x.lines.map(l=>l.startMs),[1700,3700]);assert.ok(x.lines.every(l=>l.text==='repeat'));}
 
 {const real=[{startMs:0,endMs:1,text:'x',words:[{text:'x',startMs:0,endMs:1}]}];const words=real[0].words;estimateWords(real);assert.strictEqual(real[0].words,words);assert.strictEqual(real[0].estimated,undefined);}
+
+// TTML accepts quote/order variants, entities and line breaks without guessing timing.
+{
+ const x=parseTtml("<p end='3s' begin='1s'>Tom &amp; Jerry<br/>say &#x1F600; &#33;</p>");
+ assert.strictEqual(x.lines[0].text,'Tom & Jerry say 😀 !');
+ assert.deepStrictEqual([x.lines[0].startMs,x.lines[0].endMs],[1000,3000]);
+ const words=parseTtml("<p end='4s' begin='1s'><span end='2s' begin='1s'>a</span> <span end='3s' begin='2s'>b</span></p>");
+ assert.strictEqual(words.lines[0].words.length,2);
+ for(const input of [null,undefined,42])assert.deepStrictEqual(parseTtml(input),{lines:[]});
+ for(const timing of ["begin='2s' end='1s'","begin='1garbage' end='3s'","begin='1s'", "begin='1s' end='1s'"]){
+  assert.strictEqual(parseTtml('<p '+timing+'>invalid</p>').lines.length,0);
+ }
+ const invalidWord=parseTtml("<p begin='1s' end='4s'><span begin='0s' end='2s'>line remains</span></p>");
+ assert.strictEqual(invalidWord.lines[0].words,null);
+ assert.strictEqual(invalidWord.lines[0].text,'line remains');
+ console.log('TTML FORMAT VARIANTS PASS');
+}
