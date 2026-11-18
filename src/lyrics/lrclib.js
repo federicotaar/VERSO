@@ -40,7 +40,7 @@ function norm(str) {
     .replace(/\s+(?:feat|ft)\.?\s+[^-]+$/, '')
     .replace(/[\(\[][^\)\]]*(?:remaster|version|edit|mix|live)[^\)\]]*[\)\]]/g, '')
     .replace(/&/g, 'and')
-    .replace(/[^a-z0-9]+/g, ' ').trim();
+    .replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
 }
 
 // Pick a result only when title and artist match after normalisation, it has
