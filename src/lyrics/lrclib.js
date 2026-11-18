@@ -59,13 +59,15 @@ function pickBest(track, results, maxDiffSec = 3) {
   return ok[0];
 }
 
-async function fetchLyrics({ title, artist, album, durationMs }, http = getJson) {
+async function fetchLyrics(track, http = getJson) {
+  if(!track||typeof track.title!=='string'||typeof track.artist!=='string'||!track.title.trim()||!track.artist.trim())return null;
+  const {title,artist,album,durationMs}=track;
   const q = new URLSearchParams({
     track_name: title || '',
     artist_name: artist || '',
     album_name: album || ''
   });
-  if (durationMs) q.set('duration', String(Math.round(durationMs / 1000)));
+  if (Number.isFinite(durationMs)&&durationMs>0) q.set('duration', String(Math.round(durationMs / 1000)));
   let rec = await http('https://lrclib.net/api/get?' + q.toString());
   if (!rec) {
     // Exact lookup missed (edition suffixes, punctuation). Search, then accept only a strict match.
@@ -73,9 +75,9 @@ async function fetchLyrics({ title, artist, album, durationMs }, http = getJson)
     const found = await http('https://lrclib.net/api/search?' + sq.toString());
     rec = pickBest({ title, artist, durationMs }, found);
   }
-  if (!rec) return null;
-  if (rec.syncedLyrics) return { kind: 'lrc', lrc: rec.syncedLyrics, source: 'lrclib', wordLevel: false };
-  if (rec.plainLyrics) return { kind: 'plain', plain: rec.plainLyrics, source: 'lrclib', wordLevel: false };
+  if (!rec||typeof rec!=='object'||Array.isArray(rec)||rec.instrumental) return null;
+  if (typeof rec.syncedLyrics==='string'&&rec.syncedLyrics.trim()) return { kind: 'lrc', lrc: rec.syncedLyrics, source: 'lrclib', wordLevel: false };
+  if (typeof rec.plainLyrics==='string'&&rec.plainLyrics.trim()) return { kind: 'plain', plain: rec.plainLyrics, source: 'lrclib', wordLevel: false };
   return null;
 }
 
