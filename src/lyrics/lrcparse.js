@@ -15,7 +15,8 @@ function parseLrc(lrc) {
   // [offset:+/-ms] shifts every timestamp; per the LRC spec + makes lyrics
   // appear sooner, so it is SUBTRACTED from the raw times.
   const offsetMatch = lrc.match(/^\s*\[offset:\s*([+-]?\d+)\s*\]/m);
-  const offsetMs = offsetMatch ? parseInt(offsetMatch[1], 10) : 0;
+  const parsedOffset = offsetMatch ? Number(offsetMatch[1]) : 0;
+  const offsetMs = Number.isSafeInteger(parsedOffset) ? parsedOffset : 0;
   // A line may carry several leading timestamps (repeated chorus): [00:10.00][00:50.00]text
   const lineRe = /^((?:[ \t]*\[\d+:\d+(?:\.\d+)?\])+)(.*)$/gm;
   let match;
