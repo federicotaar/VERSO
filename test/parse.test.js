@@ -210,3 +210,13 @@ assert.strictEqual(parseTtml('<p begin="61:05" end="62:00">long minutes</p>').li
  assert.deepStrictEqual(x.lines.map(l=>l.text),['early','late']);
  assert.deepStrictEqual(x.lines.map(l=>l.startMs),[2000,10000]);
 }
+
+
+// Invalid or zero-length intervals cannot support estimated word timestamps.
+{
+ const invalid=[null,{}, {text:'x',startMs:NaN,endMs:20}, {text:'x',startMs:10,endMs:10}, {text:'x',startMs:20,endMs:10}, {text:'x',startMs:0,endMs:Infinity}];
+ estimateWords(invalid);
+ assert.ok(invalid.every(l=>!l||l.words===undefined));
+ const valid=[{text:'hello',startMs:0,endMs:1000}];estimateWords(valid);
+ assert.deepStrictEqual(valid[0].words,[{text:'hello',startMs:0,endMs:1000}]);
+}
