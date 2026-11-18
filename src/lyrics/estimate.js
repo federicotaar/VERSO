@@ -3,7 +3,8 @@
 // estimated:true so the UI can say these are not real word timings.
 function estimateWords(lines) {
   for (const line of lines) {
-    if (line.words) continue;
+    if (!line || line.words || typeof line.text!=='string' || !Number.isFinite(line.startMs)) continue;
+    if (line.endMs!=null && (!Number.isFinite(line.endMs) || line.endMs<=line.startMs)) continue;
     const parts = line.text.split(/\s+/).filter(Boolean);
     if (!parts.length) continue;
     const dur = Math.max(1, (line.endMs || line.startMs + 3000) - line.startMs);
