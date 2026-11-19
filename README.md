@@ -4,6 +4,14 @@ Free fullscreen lyrics for **macOS, Ubuntu and Windows**. Original code, no Spot
 
 [Downloads](https://github.com/federicotaar/VERSO/releases) · [Builds](https://github.com/federicotaar/VERSO/actions)
 
+## What is new in 0.1.8
+
+- `/api/health` liveness endpoint on the local web page (uptime, connected clients).
+- Lyrics are cached per track: a short LRCLIB outage no longer blanks the overlay (served flagged `stale`).
+- LRCLIB picks the matching album when several cuts share title/artist/duration.
+- LRC ID tags (`[ti:]`, `[ar:]`, `[al:]`, `[by:]`, `[length:]`) are captured into `model.meta`.
+- New `src/lyrics/active.js` binary-search helper for the current line at a playback position.
+
 ## The lyric map
 
 A quiet black canvas, mixed typography, connected verses and a moving camera. Each lyric line lights up whole when it starts. Connectors between verses are now drawn like a hand-drawn pen stroke: a main line with a rough twin stroke and a soft pulsing glow, sketched onto the map as the next verse approaches. The drifting per-word highlight was removed in 0.1.4; that choice stays. Fullscreen is the default; Esc, F11 or Ctrl/Cmd+Shift+F switches to a normal window.
