@@ -7,6 +7,10 @@ Source: `src/lyrics/` and `src/nowplaying.js`.
    (title, artist, duration, play/pause, position). This is why Spotify Free
    works: the paid Web API is never touched.
 2. **Fetch**: `lyrics/lrclib.js` asks the free, key-less LRCLIB service.
+   When several cuts match title/artist/duration, the one from the reported
+   album wins. Successful results are cached per track (`lyrics/index.js`),
+   so a brief outage serves the last good copy flagged `stale` instead of
+   blanking the overlay.
    Line-level timings only; a 404 simply means no synced lyrics exist.
    Matching is strict on purpose: title and artist must be equal after
    normalisation (case, accents, punctuation, `feat.` credits and edition
@@ -19,8 +23,9 @@ Source: `src/lyrics/` and `src/nowplaying.js`.
    labels them "unsynced" and does not fake highlighting (overlay.js).
 4. **Parse**: `lyrics/lrcparse.js` turns standard and enhanced (word-timed)
    LRC into one model: `{ lines: [{ startMs, endMs, text, words }] }`.
-   ID tags like `[ti:]` are ignored; `[offset:]` is honored (positive shifts
-   lyrics earlier), per the LRC spec.
+   ID tags like `[ti:]` are captured into `model.meta` (title, artist,
+   album, writer, length) for display/debug; `[offset:]` is honored
+   (positive shifts lyrics earlier), per the LRC spec.
 5. **Fallback**: when a line has no word timings, `lyrics/estimate.js`
    splits the line's duration across words weighted by length. Callers keep
    `estimated: true` so the UI can be honest that these are not real
