@@ -11,7 +11,7 @@
   "scripts": {
     "start": "electron .",
     "dist": "electron-builder",
-    "test": "node test/parse.test.js && node test/webserver.test.js && node test/lrclib.test.js && node test/icons.test.js && node test/demo.test.js && node test/active.test.js"
+    "test": "node test/parse.test.js && node test/webserver.test.js && node test/lrclib.test.js && node test/icons.test.js && node test/demo.test.js && node test/active.test.js && node test/lyrics-index.test.js"
   },
   "devDependencies": {
     "electron": "^33.0.0",
