@@ -56,6 +56,13 @@ function pickBest(track, results, maxDiffSec = 3) {
     && (wantDur === null || (typeof r.duration === 'number' && Math.abs(r.duration - wantDur) <= maxDiffSec)));
   if (!ok.length) return null;
   if (wantDur !== null) ok.sort((a, b) => Math.abs(a.duration - wantDur) - Math.abs(b.duration - wantDur));
+  // several cuts can share title/artist/duration: prefer the one from the
+  // same album when the player reports it (greatest hits vs original album)
+  const wantAl = norm(track.album);
+  if (wantAl) {
+    const sameAlbum = ok.filter(r => typeof r.albumName === 'string' && norm(r.albumName) === wantAl);
+    if (sameAlbum.length) return sameAlbum[0];
+  }
   return ok[0];
 }
 
