@@ -11,7 +11,14 @@ function tsToMs(tag) {
 
 function parseLrc(lrc) {
   const out = [];
-  if(typeof lrc!=='string')return {lines:out};
+  if(typeof lrc!=='string')return {lines:out, meta:{}};
+  // LRC ID tags ([ti:], [ar:], [al:], [by:], [length:]) are metadata, not
+  // lyrics: capture them into meta for display/debug instead of dropping them.
+  const meta = {};
+  for (const tm of lrc.matchAll(/^\s*\[(ti|ar|al|by|length):\s*([^\]]*)\]/gm)) {
+    const v = tm[2].trim();
+    if (v) meta[tm[1]] = v;
+  }
   // [offset:+/-ms] shifts every timestamp; per the LRC spec + makes lyrics
   // appear sooner, so it is SUBTRACTED from the raw times.
   const offsetMatch = lrc.match(/^\s*\[offset:\s*([+-]?\d+)\s*\]/m);
@@ -57,7 +64,7 @@ function parseLrc(lrc) {
       for (let j = 0; j + 1 < ws.length; j++) if (ws[j].endMs === null) ws[j].endMs = ws[j + 1].startMs;
     }
   }
-  return { lines: out.filter(l => l.text) };
+  return { lines: out.filter(l => l.text), meta };
 }
 
 module.exports = { parseLrc, tsToMs };
