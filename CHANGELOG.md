@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.8 (2026-11-19)
+
+- Local web page: new `/api/health` liveness endpoint.
+- Per-track lyrics cache with `stale` fallback during LRCLIB outages.
+- LRCLIB album-aware tie-break between equal cuts.
+- LRC ID tags captured into `model.meta`.
+- New binary-search active-line helper (`src/lyrics/active.js`) with tests.
+
+Changelog
+
 VERSO's milestones, newest first. Downloads are on the Releases page.
 
 ## Unreleased
