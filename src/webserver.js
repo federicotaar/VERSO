@@ -47,6 +47,10 @@ function handle(req, res) {
     if (p === '/icons.js') body = 'var module = { exports: {} };\n' + body; // the file also targets CommonJS
     return send(200, FILES[p], body);
   }
+  if (p === '/api/health') {
+    // liveness probe for the browser page and external checks: cheap, no state
+    return send(200, 'application/json', JSON.stringify({ ok: true, uptimeMs: started ? Date.now() - started : 0, clients: clients.size }));
+  }
   if (p === '/api/state') {
     try {return send(200, 'application/json', JSON.stringify(getState()));}
     catch(e){log('state snapshot unavailable');return send(500, 'application/json', '{"error":"state unavailable"}');}
