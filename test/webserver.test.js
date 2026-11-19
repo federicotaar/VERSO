@@ -22,6 +22,15 @@ function get(path, headers = {}, method = 'GET') {
   assert.strictEqual(r.headers['cache-control'], 'no-store');
   r = await get('/api/state');
   assert.strictEqual(JSON.parse(r.body).track.title, 't');
+  // /api/health answers ok without touching app state
+  r = await get('/api/health');
+  assert.strictEqual(r.status, 200);
+  const h = JSON.parse(r.body);
+  assert.strictEqual(h.ok, true);
+  assert.ok(Number.isFinite(h.uptimeMs) && h.uptimeMs >= 0);
+  assert.ok(Number.isSafeInteger(h.clients));
+  // and it is behind the same Host guard as the rest
+  assert.strictEqual((await get('/api/health', { Host: 'evil.example' })).status, 403);
   assert.strictEqual((await get('/overlay.css')).status, 200);
   assert.strictEqual((await get('/nope')).status, 404);
   assert.strictEqual((await get('/api/state', { Host: 'evil.example' })).status, 403, 'rebinding host');
