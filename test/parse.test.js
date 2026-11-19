@@ -65,7 +65,17 @@ assert.strictEqual(m.lines[1].words[1].startMs, 11500);
   assert.strictEqual(parsed.lines[0].text, 'real line');
   assert.strictEqual(parsed.lines[0].startMs, 2500, 'offset applies, other tags do not disturb timing');
   assert.strictEqual(parsed.lines[1].endMs, 10500, 'last line keeps the 5s tail');
-  console.log('ID tag handling OK');
+  // ID tags land in meta and never become lyric lines
+m = parseLrc('[ti:The Chain]\n[ar:Fleetwood Mac]\n[length:4:28]\n[00:10.00]real line');
+assert.deepStrictEqual(m.meta, { ti: 'The Chain', ar: 'Fleetwood Mac', length: '4:28' });
+assert.strictEqual(m.lines.length, 1);
+assert.strictEqual(m.lines[0].text, 'real line');
+// no tags: meta is an empty object, lines unaffected
+assert.deepStrictEqual(parseLrc('[00:01.00]x').meta, {});
+// non-string input stays safe and now carries meta too
+assert.deepStrictEqual(parseLrc(null), { lines: [], meta: {} });
+
+console.log('ID tag handling OK');
 }
 
 console.log('ALL TESTS PASS');
@@ -144,7 +154,7 @@ for(const bad of [null,undefined,42,{},'prefix00:01.00','00:01.00junk','-1:00'])
 
 assert.strictEqual(tsToMs('00:60.00'),null);assert.strictEqual(tsToMs('999999999999999999999:01'),null);assert.strictEqual(tsToMs('00:59.999'),59999);
 
-for(const bad of [null,undefined,42,{}])assert.deepStrictEqual(parseLrc(bad),{lines:[]});
+for(const bad of [null,undefined,42,{}])assert.deepStrictEqual(parseLrc(bad),{lines:[],meta:{}});
 
 {const x=parseLrc('[00:60.00]bad\n[00:01.00]valid');assert.deepStrictEqual(x.lines.map(l=>l.text),['valid']);}
 
