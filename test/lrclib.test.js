@@ -27,6 +27,16 @@ assert.strictEqual(pickBest({ title: '', artist: 'x' }, [r('a', 'x', 1)]), null)
 assert.strictEqual(pickBest({ title: 'Alive', artist: 'Bee Gees', durationMs: 283000 }, [r('Alive', 'Bee Gees', 286)]).duration, 286);
 assert.strictEqual(pickBest({ title: 'Alive', artist: 'Bee Gees', durationMs: 283000 }, [r('Alive', 'Bee Gees', 286.5)]), null);
 assert.strictEqual(pickBest({ title: 'Alive', artist: 'Bee Gees', durationMs: 283000 }, [r('Alive', 'Bee Gees', '283')]), null);
+// album tie-break: same title/artist/duration, the reported album wins
+assert.strictEqual(pickBest({ title: 'Song', artist: 'A', album: 'Greatest Hits', durationMs: 200000 },
+  [r('Song', 'A', 200, 'x', { albumName: 'Original Album' }), r('Song', 'A', 200, 'x', { albumName: 'Greatest Hits' })]).albumName, 'Greatest Hits');
+// unknown or missing album on the track: first (closest-duration) candidate, unchanged behaviour
+assert.strictEqual(pickBest({ title: 'Song', artist: 'A', durationMs: 200000 },
+  [r('Song', 'A', 200, 'x', { albumName: 'Original Album' }), r('Song', 'A', 200, 'x', { albumName: 'Greatest Hits' })]).albumName, 'Original Album');
+// a non-matching album is ignored rather than rejecting the match
+assert.strictEqual(pickBest({ title: 'Song', artist: 'A', album: 'Live Bootleg', durationMs: 200000 },
+  [r('Song', 'A', 200, 'x', { albumName: 'Studio Album' })]).albumName, 'Studio Album');
+
 // no reported duration: title+artist must still match
 assert.strictEqual(pickBest({ title: 'Alive', artist: 'Bee Gees' }, [r('Alive', 'Bee Gees', 100)]).duration, 100);
 
