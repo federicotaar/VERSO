@@ -80,7 +80,7 @@ async function fetchLyrics(track, http = getJson) {
     // Exact lookup missed (edition suffixes, punctuation). Search, then accept only a strict match.
     const sq = new URLSearchParams({ track_name: title || '', artist_name: artist || '' });
     const found = await http('https://lrclib.net/api/search?' + sq.toString());
-    rec = pickBest({ title, artist, durationMs }, found);
+    rec = pickBest({ title, artist, album, durationMs }, found);
   }
   if (!rec||typeof rec!=='object'||Array.isArray(rec)||rec.instrumental) return null;
   if (typeof rec.syncedLyrics==='string'&&rec.syncedLyrics.trim()) return { kind: 'lrc', lrc: rec.syncedLyrics, source: 'lrclib', wordLevel: false };
