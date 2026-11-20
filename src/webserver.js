@@ -56,6 +56,25 @@ function handle(req, res) {
     try {return send(200, 'application/json', JSON.stringify(getState()));}
     catch(e){log('state snapshot unavailable');return send(500, 'application/json', '{"error":"state unavailable"}');}
   }
+  const exports = {
+    '/api/lyrics.lrc': [toLrc, 'text/plain; charset=utf-8'],
+    '/api/lyrics.srt': [toSrt, 'application/x-subrip; charset=utf-8'],
+    '/api/lyrics.vtt': [toVtt, 'text/vtt; charset=utf-8'],
+  };
+  if (exports[p]) {
+    try {
+      const lyrics = getState().lyrics;
+      if (!lyrics || lyrics.unsynced || !Array.isArray(lyrics.lines) || !lyrics.lines.length)
+        return send(409, 'text/plain', 'timed lyrics unavailable');
+      const [encode, type] = exports[p];
+      const body = encode(lyrics);
+      if (!body || body === 'WEBVTT\n\n') return send(409, 'text/plain', 'timed lyrics unavailable');
+      return send(200, type, body);
+    } catch (e) {
+      log('lyric export unavailable');
+      return send(500, 'text/plain', 'lyric export unavailable');
+    }
+  }
   if (p === '/api/events') {
     res.writeHead(200, { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-store', Connection: 'keep-alive', 'X-Content-Type-Options': 'nosniff', 'Cross-Origin-Resource-Policy': 'same-origin' });
     res.write('retry: 1500\n\n');
