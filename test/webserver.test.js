@@ -40,6 +40,17 @@ function get(path, headers = {}, method = 'GET') {
   assert.strictEqual((await get('/api/state', {}, 'POST')).status, 403, 'read-only');
   assert.strictEqual((await get('/../package.json')).status, 404, 'no path traversal');
   assert.strictEqual(r.headers['access-control-allow-origin'], undefined);
+  // Export endpoints share the Host/Origin guard and do not pretend plain lyrics are timed.
+  assert.strictEqual((await get('/api/lyrics.lrc')).status,409);
+  web.stop();
+  await web.start({getState:()=>({lyrics:{lines:[{startMs:1000,endMs:2500,text:'hello & world'}]}}),log:()=>{}});
+  assert.strictEqual((await get('/api/lyrics.lrc')).body,'[00:01.000]hello & world');
+  assert.ok((await get('/api/lyrics.srt')).body.includes('00:00:01,000 --> 00:00:02,500'));
+  const vtt=await get('/api/lyrics.vtt');
+  assert.strictEqual(vtt.headers['content-type'],'text/vtt; charset=utf-8');
+  assert.ok(vtt.body.startsWith('WEBVTT\n\n'));
+  assert.strictEqual((await get('/api/lyrics.vtt',{Origin:'http://evil.example'})).status,403);
+  assert.strictEqual((await get('/api/lyrics.srt',{},'POST')).status,403);
   // SSE: /api/events clients receive broadcast messages
   const sse = await new Promise((resolve, reject) => {
     const req = http.request({ host: '127.0.0.1', port: 17971, path: '/api/events', headers: { Host: '127.0.0.1:17971' } }, res => {
