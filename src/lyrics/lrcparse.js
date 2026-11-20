@@ -100,3 +100,9 @@ function toSrt(model) {
   return exportableLines(model).map((l,i) => `${i+1}\n${subtitleTimestamp(l.startMs,',')} --> ${subtitleTimestamp(l.endMs,',')}\n${subtitleText(l.text)}\n`).join('\n');
 }
 module.exports.toSrt = toSrt;
+
+function toVtt(model) {
+  const cues=exportableLines(model).map(l => `${subtitleTimestamp(l.startMs,'.')} --> ${subtitleTimestamp(l.endMs,'.')}\n${subtitleText(l.text)}\n`);
+  return 'WEBVTT\n\n' + cues.join('\n');
+}
+module.exports.toVtt = toVtt;
