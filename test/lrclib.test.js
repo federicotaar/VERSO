@@ -93,3 +93,14 @@ assert.strictEqual(norm('夜に駆ける'), '夜に駆ける');
 assert.notStrictEqual(norm('夜に駆ける'),norm('群青'));
 assert.strictEqual(pickBest({title:'群青',artist:'ヨアソビ'},[r('群青','ヨアソビ',200)]).trackName,'群青');
 assert.strictEqual(pickBest({title:'群青',artist:'ヨアソビ'},[r('夜に駆ける','ヨアソビ',200)]),null);
+
+(async()=>{
+ const {fetchLyrics}=require('../src/lyrics/lrclib');
+ const track={title:'Same title',artist:'Same artist',album:'Original',durationMs:120000};
+ let calls=0;
+ const result=await fetchLyrics(track,async()=>++calls===1?null:[
+  {trackName:track.title,artistName:track.artist,albumName:'Compilation',duration:120,syncedLyrics:'[00:01]wrong edition'},
+  {trackName:track.title,artistName:track.artist,albumName:'Original',duration:120,syncedLyrics:'[00:01]correct edition'}
+ ]);
+ assert.ok(result.lrc.includes('correct edition'));
+})().catch(e=>{console.error(e);process.exitCode=1;});
