@@ -87,3 +87,16 @@ function toLrc(model) {
   }).join('\n');
 }
 module.exports.toLrc = toLrc;
+
+function subtitleTimestamp(ms, separator) {
+  const hours=Math.floor(ms/3600000), minutes=Math.floor(ms/60000)%60, seconds=Math.floor(ms/1000)%60;
+  return `${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}${separator}${String(ms%1000).padStart(3,'0')}`;
+}
+// Escape markup so a lyric containing <i> or an arrow remains literal text.
+function subtitleText(text) {
+  return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function toSrt(model) {
+  return exportableLines(model).map((l,i) => `${i+1}\n${subtitleTimestamp(l.startMs,',')} --> ${subtitleTimestamp(l.endMs,',')}\n${subtitleText(l.text)}\n`).join('\n');
+}
+module.exports.toSrt = toSrt;
