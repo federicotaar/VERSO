@@ -68,3 +68,22 @@ function parseLrc(lrc) {
 }
 
 module.exports = { parseLrc, tsToMs };
+
+
+// Export only finite, non-empty timed lines. Do not mutate the live model.
+function exportableLines(model) {
+  if (!model || model.unsynced || !Array.isArray(model.lines)) return [];
+  return model.lines.filter(l => l && typeof l.text === 'string' && l.text.trim()
+    && Number.isFinite(l.startMs) && Number.isSafeInteger(Math.round(l.startMs)) && l.startMs >= 0
+    && Number.isFinite(l.endMs) && Number.isSafeInteger(Math.round(l.endMs)) && Math.round(l.endMs) > Math.round(l.startMs))
+    .map(l => ({ startMs: Math.round(l.startMs), endMs: Math.round(l.endMs),
+      text: l.text.replace(/[\r\n]+/g, ' ').trim() }))
+    .sort((a,b) => a.startMs-b.startMs);
+}
+function toLrc(model) {
+  return exportableLines(model).map(l => {
+    const ms = l.startMs, minutes = Math.floor(ms/60000), seconds = Math.floor(ms/1000)%60;
+    return `[${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}.${String(ms%1000).padStart(3,'0')}]${l.text}`;
+  }).join('\n');
+}
+module.exports.toLrc = toLrc;
