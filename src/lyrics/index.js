@@ -44,6 +44,7 @@ async function getLyrics(track, settings) {
     if (key && cache.has(key)) return { ...cache.get(key), stale: true };
     return null;
   }
+  if (key) cache.delete(key);
   return null;
 }
 
