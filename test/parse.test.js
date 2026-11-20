@@ -240,3 +240,11 @@ assert.strictEqual(parseTtml('<p begin="61:05" end="62:00">long minutes</p>').li
  assert.strictEqual(toLrc({lines:[{startMs:NaN,endMs:2000,text:'bad'}]}),'');
  assert.strictEqual(parseLrc(toLrc(model)).lines[1].startMs,62501);
 }
+
+{
+ const {toSrt} = require('../src/lyrics/lrcparse');
+ assert.strictEqual(toSrt({lines:[{startMs:3600001,endMs:3602000,text:'<i>A & B</i>'}]}),
+  '1\n01:00:00,001 --> 01:00:02,000\n&lt;i&gt;A &amp; B&lt;/i&gt;\n');
+ assert.strictEqual(toSrt({lines:[{startMs:1,endMs:1,text:'zero'},{startMs:-1,endMs:1,text:'negative'}]}),'');
+ assert.strictEqual(toSrt(null),'');
+}
