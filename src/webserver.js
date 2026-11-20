@@ -4,6 +4,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const { toLrc, toSrt, toVtt } = require('./lyrics/lrcparse');
 
 const rawPort=process.env.VERSO_WEB_PORT || '17653';
 const envPort=/^\d+$/.test(rawPort)?Number(rawPort):NaN;
