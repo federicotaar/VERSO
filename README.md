@@ -76,3 +76,19 @@ npm run dist
 GitHub Actions builds Linux, Windows and Mac on pushes. Manual workflow dispatch publishes a new version only if its tag does not already exist; older releases are retained. Mac CI checks native addon loading, starts the packaged host-architecture app in demo mode and captures its real window. Opposite-architecture packaging does not imply runtime testing.
 
 Media backend: [now-playing-media](https://github.com/NikolaKaplin/now-playing-media), including [mediaremote-adapter](https://github.com/ungive/mediaremote-adapter). Their notices ship in the dependency. No code or assets from paid lyric apps are used.
+
+
+### Read-only lyric exports
+
+While Verso is running with timed lyrics, its local browser server also serves:
+
+- `/api/lyrics.lrc`: millisecond-precision line timestamps.
+- `/api/lyrics.srt`: numbered subtitle cues.
+- `/api/lyrics.vtt`: WebVTT captions for browser players.
+
+Open these paths on the local browser URL printed by Verso (default
+`http://127.0.0.1:17653/`). These endpoints do not write files or upload lyrics.
+They return HTTP 409 when timed lyrics are unavailable, including plain-only
+lyrics. Existing Host and Origin guards apply. Timing precision comes from the
+provider's line timestamps, not real word timing. This adds an HTTP export path,
+not a new desktop export button.
