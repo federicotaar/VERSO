@@ -248,3 +248,11 @@ assert.strictEqual(parseTtml('<p begin="61:05" end="62:00">long minutes</p>').li
  assert.strictEqual(toSrt({lines:[{startMs:1,endMs:1,text:'zero'},{startMs:-1,endMs:1,text:'negative'}]}),'');
  assert.strictEqual(toSrt(null),'');
 }
+
+{
+ const {toVtt} = require('../src/lyrics/lrcparse');
+ assert.strictEqual(toVtt({lines:[{startMs:1001,endMs:2002,text:'A --> B\r\nnext'}]}),
+  'WEBVTT\n\n00:00:01.001 --> 00:00:02.002\nA --&gt; B next\n');
+ assert.strictEqual(toVtt({lines:[]}),'WEBVTT\n\n');
+ assert.strictEqual(toVtt({unsynced:true,lines:[{startMs:1,endMs:2,text:'x'}]}),'WEBVTT\n\n');
+}
