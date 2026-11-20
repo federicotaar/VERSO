@@ -16,7 +16,8 @@ function trackKey(track) {
   const t = track.title.trim(), a = track.artist.trim();
   if (!t || !a) return null;
   const d = Number.isFinite(track.durationMs) ? Math.round(track.durationMs / 1000) : 0;
-  return `${t.toLowerCase()}|${a.toLowerCase()}|${d}`;
+  const album = typeof track.album === 'string' ? track.album.trim().toLowerCase() : '';
+  return JSON.stringify([t.toLowerCase(), a.toLowerCase(), album, d]);
 }
 
 async function getLyrics(track, settings) {
