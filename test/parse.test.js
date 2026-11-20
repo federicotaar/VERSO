@@ -230,3 +230,13 @@ assert.strictEqual(parseTtml('<p begin="61:05" end="62:00">long minutes</p>').li
  const valid=[{text:'hello',startMs:0,endMs:1000}];estimateWords(valid);
  assert.deepStrictEqual(valid[0].words,[{text:'hello',startMs:0,endMs:1000}]);
 }
+
+{
+ const {toLrc} = require('../src/lyrics/lrcparse');
+ const model={lines:[{startMs:62501,endMs:65000,text:'hello\nworld'},{startMs:1000,endMs:2000,text:'first'}]};
+ assert.strictEqual(toLrc(model),'[00:01.000]first\n[01:02.501]hello world');
+ assert.strictEqual(model.lines[0].startMs,62501);
+ assert.strictEqual(toLrc({unsynced:true,lines:model.lines}),'');
+ assert.strictEqual(toLrc({lines:[{startMs:NaN,endMs:2000,text:'bad'}]}),'');
+ assert.strictEqual(parseLrc(toLrc(model)).lines[1].startMs,62501);
+}
