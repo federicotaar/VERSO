@@ -30,5 +30,14 @@ const { getLyrics } = require('../src/lyrics/index');
   assert.strictEqual(await getLyrics(null, {}), null);
   assert.strictEqual(await getLyrics({ title: '', artist: 'x' }, {}), null);
 
+  behavior = async () => ({kind:'lrc',lrc:'[00:01]album one',source:'lrclib'});
+  const edition={title:'Edition',artist:'Tester',album:'Album One',durationMs:60000};
+  await getLyrics(edition,{});
+  behavior = async () => {throw new Error('offline');};
+  assert.strictEqual(await getLyrics({...edition,album:'Album Two'},{}),null);
+  behavior = async () => ({kind:'lrc',lrc:'[00:01]delimiter one',source:'lrclib'});
+  await getLyrics({title:'a|b',artist:'c'},{});
+  behavior = async () => {throw new Error('offline');};
+  assert.strictEqual(await getLyrics({title:'a',artist:'b|c'},{}),null);
   console.log('LYRICS-INDEX TESTS PASS');
 })().catch(e => { console.error(e); process.exit(1); });
