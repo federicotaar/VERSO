@@ -60,6 +60,7 @@ function handle(req, res) {
     '/api/lyrics.lrc': [toLrc, 'text/plain; charset=utf-8'],
     '/api/lyrics.srt': [toSrt, 'application/x-subrip; charset=utf-8'],
     '/api/lyrics.vtt': [toVtt, 'text/vtt; charset=utf-8'],
+    '/api/lyrics.txt': [toTxt, 'text/plain; charset=utf-8'],
   };
   if (exports[p]) {
     try {
