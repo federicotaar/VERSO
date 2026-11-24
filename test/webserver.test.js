@@ -33,6 +33,7 @@ function get(path, headers = {}, method = 'GET') {
   assert.strictEqual((await get('/api/health', { Host: 'evil.example' })).status, 403);
   assert.strictEqual((await get('/overlay.css')).status, 200);
   assert.strictEqual((await get('/nope')).status, 404);
+  assert.strictEqual((await get('/' + 'a'.repeat(3000))).status, 414);
   assert.strictEqual((await get('/api/health')).headers['referrer-policy'], 'no-referrer');
   assert.strictEqual((await get('/api/state', { Host: 'evil.example' })).status, 403, 'rebinding host');
   assert.strictEqual((await get('/api/state', { Origin: 'http://evil.example' })).status, 403, 'foreign origin');
