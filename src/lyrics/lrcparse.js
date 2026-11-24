@@ -113,3 +113,13 @@ function metaLengthMs(meta) {
   return tsToMs(meta.length.trim());
 }
 module.exports.metaLengthMs = metaLengthMs;
+
+// Returns a copy of the model with all line and word times moved by deltaMs (never below 0).
+function shiftLines(model, deltaMs) {
+  if (!model || !Array.isArray(model.lines) || !Number.isFinite(deltaMs)) return model;
+  const mv = ms => (Number.isFinite(ms) ? Math.max(0, Math.round(ms + deltaMs)) : ms);
+  return { ...model, lines: model.lines.map(l => ({ ...l,
+    startMs: mv(l.startMs), endMs: mv(l.endMs),
+    words: Array.isArray(l.words) ? l.words.map(w => ({ ...w, startMs: mv(w.startMs), endMs: mv(w.endMs) })) : l.words })) };
+}
+module.exports.shiftLines = shiftLines;
