@@ -35,4 +35,12 @@ assert.strictEqual(findNextLine(lines, 30000), -1);
 assert.strictEqual(findNextLine([], 5), -1);
 assert.strictEqual(findNextLine(lines, NaN), -1);
 
+const { lineProgress } = require('../src/lyrics/active');
+assert.strictEqual(lineProgress(lines[0], 9000), 0);
+assert.strictEqual(lineProgress(lines[0], 12250), 0.5);
+assert.strictEqual(lineProgress(lines[0], 20000), 1);
+assert.strictEqual(lineProgress({ startMs: 5, endMs: 5 }, 6), 1);
+assert.strictEqual(lineProgress(null, 6), 0);
+assert.strictEqual(lineProgress(lines[0], NaN), 0);
+
 console.log('ACTIVE-LINE TESTS PASS');
