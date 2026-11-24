@@ -265,3 +265,18 @@ assert.strictEqual(parseTtml('<p begin="61:05" end="62:00">long minutes</p>').li
  assert.strictEqual(metaLengthMs({}),null);
  assert.strictEqual(metaLengthMs(null),null);
 }
+
+{
+ const {shiftLines}=require('../src/lyrics/lrcparse');
+ const m={source:'x',lines:[{startMs:1000,endMs:2000,text:'a',words:[{text:'a',startMs:1000,endMs:2000}]},{startMs:5000,endMs:null,text:'b',words:null}]};
+ const s=shiftLines(m,-1500);
+ assert.strictEqual(s.lines[0].startMs,0);
+ assert.strictEqual(s.lines[0].endMs,500);
+ assert.strictEqual(s.lines[0].words[0].endMs,500);
+ assert.strictEqual(s.lines[1].startMs,3500);
+ assert.strictEqual(s.lines[1].endMs,null);
+ assert.strictEqual(s.source,'x');
+ assert.strictEqual(m.lines[0].startMs,1000,'original untouched');
+ assert.strictEqual(shiftLines(m,NaN),m);
+ assert.strictEqual(shiftLines(null,10),null);
+}
