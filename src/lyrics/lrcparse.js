@@ -134,3 +134,9 @@ function modelDurationMs(model) {
   return end;
 }
 module.exports.modelDurationMs = modelDurationMs;
+
+// Plain text, one line per lyric in time order, without timestamps.
+function toTxt(model) {
+  return exportableLines(model).map(l => l.text).join('\n');
+}
+module.exports.toTxt = toTxt;
