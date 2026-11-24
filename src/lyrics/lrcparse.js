@@ -123,3 +123,14 @@ function shiftLines(model, deltaMs) {
     words: Array.isArray(l.words) ? l.words.map(w => ({ ...w, startMs: mv(w.startMs), endMs: mv(w.endMs) })) : l.words })) };
 }
 module.exports.shiftLines = shiftLines;
+
+function modelDurationMs(model) {
+  if (!model || model.unsynced || !Array.isArray(model.lines)) return 0;
+  let end = 0;
+  for (const l of model.lines) {
+    const e = l && Number.isFinite(l.endMs) ? l.endMs : (l && Number.isFinite(l.startMs) ? l.startMs : 0);
+    if (e > end) end = e;
+  }
+  return end;
+}
+module.exports.modelDurationMs = modelDurationMs;
