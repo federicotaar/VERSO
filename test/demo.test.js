@@ -51,3 +51,12 @@ poll().then(p => {
   const state=await demo.poll();assert.ok(state.positionMs>=0&&state.positionMs<state.track.durationMs);
  } finally {Date.now=original;}
 })().catch(e=>{console.error(e);process.exitCode=1;});
+
+{
+ const demo=require('../src/demo');
+ assert.ok(Object.isFrozen(demo.DEMO_TRACK));
+ const model=demo.demoLyrics();
+ const last=model.lines[model.lines.length-1];
+ assert.ok(last.endMs<=demo.DEMO_TRACK.durationMs,'lyrics end before the loop restarts');
+ assert.ok(model.lines.every((l,i)=>i===0||l.startMs>=model.lines[i-1].endMs),'lines do not overlap');
+}
