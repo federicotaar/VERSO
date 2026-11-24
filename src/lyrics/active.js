@@ -23,4 +23,12 @@ function findNextLine(lines, positionMs) {
   return next < lines.length ? next : -1;
 }
 
-module.exports = { findActiveLine, findNextLine };
+// 0..1 progress of positionMs through a line; 0 before it starts, 1 once it ends.
+function lineProgress(line, positionMs) {
+  if (!line || !Number.isFinite(line.startMs) || !Number.isFinite(line.endMs) || !Number.isFinite(positionMs)) return 0;
+  const span = line.endMs - line.startMs;
+  if (span <= 0) return positionMs >= line.startMs ? 1 : 0;
+  return Math.min(1, Math.max(0, (positionMs - line.startMs) / span));
+}
+
+module.exports = { findActiveLine, findNextLine, lineProgress };
