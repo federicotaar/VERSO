@@ -48,4 +48,7 @@ async function getLyrics(track, settings) {
   return null;
 }
 
-module.exports = { getLyrics };
+function cacheSize() { return cache.size; }
+function clearCache() { cache.clear(); }
+
+module.exports = { getLyrics, cacheSize, clearCache };
