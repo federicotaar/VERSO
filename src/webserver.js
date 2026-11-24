@@ -39,7 +39,7 @@ function indexHtml() {
   return h;
 }
 function handle(req, res) {
-  const send = (code, type, body) => { res.writeHead(code, { 'Content-Type': type, 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', 'Cross-Origin-Resource-Policy': 'same-origin' }); res.end(body); };
+  const send = (code, type, body) => { res.writeHead(code, { 'Content-Type': type, 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', 'Cross-Origin-Resource-Policy': 'same-origin', 'Referrer-Policy': 'no-referrer' }); res.end(body); };
   if (req.method !== 'GET' || !hostOk(req.headers.host) || !originOk(req)) return send(403, 'text/plain', 'forbidden');
   const p = (req.url || '/').split('?')[0];
   if (p === '/' || p === '/index.html') return send(200, 'text/html; charset=utf-8', indexHtml());
