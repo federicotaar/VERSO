@@ -27,4 +27,12 @@ const big = Array.from({ length: 500 }, (_, i) => ({ startMs: i * 3000, endMs: i
 assert.strictEqual(findActiveLine(big, 499 * 3000), 499);
 assert.strictEqual(findActiveLine(big, 10 * 3000 + 1), 10);
 
+const { findNextLine } = require('../src/lyrics/active');
+assert.strictEqual(findNextLine(lines, 0), 0);
+assert.strictEqual(findNextLine(lines, 10000), 1);
+assert.strictEqual(findNextLine(lines, 25000), 2);
+assert.strictEqual(findNextLine(lines, 30000), -1);
+assert.strictEqual(findNextLine([], 5), -1);
+assert.strictEqual(findNextLine(lines, NaN), -1);
+
 console.log('ACTIVE-LINE TESTS PASS');
