@@ -106,3 +106,10 @@ function toVtt(model) {
   return 'WEBVTT\n\n' + cues.join('\n');
 }
 module.exports.toVtt = toVtt;
+
+// [length: mm:ss] ID tag -> milliseconds, or null when absent or malformed
+function metaLengthMs(meta) {
+  if (!meta || typeof meta.length !== 'string') return null;
+  return tsToMs(meta.length.trim());
+}
+module.exports.metaLengthMs = metaLengthMs;
