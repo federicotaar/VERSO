@@ -68,7 +68,7 @@ function pickBest(track, results, maxDiffSec = 3) {
 
 async function fetchLyrics(track, http = getJson) {
   if(!track||typeof track.title!=='string'||typeof track.artist!=='string'||!track.title.trim()||!track.artist.trim())return null;
-  const {title,artist,album,durationMs}=track;
+  const title=track.title.trim(),artist=track.artist.trim(),album=typeof track.album==='string'?track.album.trim():track.album,durationMs=track.durationMs;
   const q = new URLSearchParams({
     track_name: title || '',
     artist_name: artist || '',
