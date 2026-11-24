@@ -46,6 +46,9 @@ function get(path, headers = {}, method = 'GET') {
   await web.start({getState:()=>({lyrics:{lines:[{startMs:1000,endMs:2500,text:'hello & world'}]}}),log:()=>{}});
   assert.strictEqual((await get('/api/lyrics.lrc')).body,'[00:01.000]hello & world');
   assert.ok((await get('/api/lyrics.srt')).body.includes('00:00:01,000 --> 00:00:02,500'));
+  const txt=await get('/api/lyrics.txt');
+  assert.strictEqual(txt.body,'hello & world');
+  assert.strictEqual(txt.headers['content-type'],'text/plain; charset=utf-8');
   const vtt=await get('/api/lyrics.vtt');
   assert.strictEqual(vtt.headers['content-type'],'text/vtt; charset=utf-8');
   assert.ok(vtt.body.startsWith('WEBVTT\n\n'));
