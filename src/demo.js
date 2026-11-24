@@ -5,6 +5,7 @@ const DEMO_TRACK = {
   title: 'Demo Notturna', artist: 'VERSO', album: 'Preview',
   durationMs: 60000, artUrl: null, source: 'demo'
 };
+Object.freeze(DEMO_TRACK);
 
 function demoLyrics() {
   const lines = [];
