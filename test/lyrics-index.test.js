@@ -10,7 +10,7 @@ require.cache[lrclibPath] = {
   id: lrclibPath, filename: lrclibPath, loaded: true,
   exports: { fetchLyrics: (...a) => behavior(...a), pickBest: () => null, norm: String },
 };
-const { getLyrics } = require('../src/lyrics/index');
+const { getLyrics, cacheSize, clearCache } = require('../src/lyrics/index');
 
 (async () => {
   const track = { title: 'Cached Song', artist: 'Tester', durationMs: 60000 };
