@@ -27,6 +27,7 @@ function get(path, headers = {}, method = 'GET') {
   assert.strictEqual(r.status, 200);
   const h = JSON.parse(r.body);
   assert.strictEqual(h.ok, true);
+  assert.strictEqual(h.version, require('../package.json').version);
   assert.ok(Number.isFinite(h.uptimeMs) && h.uptimeMs >= 0);
   assert.ok(Number.isSafeInteger(h.clients));
   // and it is behind the same Host guard as the rest
