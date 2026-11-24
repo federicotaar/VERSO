@@ -51,7 +51,7 @@ function handle(req, res) {
   }
   if (p === '/api/health') {
     // liveness probe for the browser page and external checks: cheap, no state
-    return send(200, 'application/json', JSON.stringify({ ok: true, uptimeMs: started ? Date.now() - started : 0, clients: clients.size }));
+    return send(200, 'application/json', JSON.stringify({ ok: true, version: require('../package.json').version, uptimeMs: started ? Date.now() - started : 0, clients: clients.size }));
   }
   if (p === '/api/state') {
     try {return send(200, 'application/json', JSON.stringify(getState()));}
