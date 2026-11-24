@@ -104,3 +104,12 @@ assert.strictEqual(pickBest({title:'群青',artist:'ヨアソビ'},[r('夜に駆
  ]);
  assert.ok(result.lrc.includes('correct edition'));
 })().catch(e=>{console.error(e);process.exitCode=1;});
+
+(async()=>{
+ const urls=[];
+ await fetchLyrics({title:'  Padded Song ',artist:' Someone  ',album:' Rec ',durationMs:90000},async u=>{urls.push(u);return {syncedLyrics:'[00:01]x'}});
+ const q=new URL(urls[0]).searchParams;
+ assert.strictEqual(q.get('track_name'),'Padded Song');
+ assert.strictEqual(q.get('artist_name'),'Someone');
+ assert.strictEqual(q.get('album_name'),'Rec');
+})().catch(e=>{console.error(e);process.exitCode=1;});
