@@ -280,3 +280,12 @@ assert.strictEqual(parseTtml('<p begin="61:05" end="62:00">long minutes</p>').li
  assert.strictEqual(shiftLines(m,NaN),m);
  assert.strictEqual(shiftLines(null,10),null);
 }
+
+{
+ const {modelDurationMs}=require('../src/lyrics/lrcparse');
+ assert.strictEqual(modelDurationMs({lines:[{startMs:1000,endMs:4000},{startMs:4000,endMs:9000}]}),9000);
+ assert.strictEqual(modelDurationMs({lines:[{startMs:7000,endMs:null}]}),7000);
+ assert.strictEqual(modelDurationMs({unsynced:true,lines:[{startMs:0,endMs:0}]}),0);
+ assert.strictEqual(modelDurationMs({lines:[]}),0);
+ assert.strictEqual(modelDurationMs(undefined),0);
+}
