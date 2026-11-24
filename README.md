@@ -85,6 +85,7 @@ While Verso is running with timed lyrics, its local browser server also serves:
 - `/api/lyrics.lrc`: millisecond-precision line timestamps.
 - `/api/lyrics.srt`: numbered subtitle cues.
 - `/api/lyrics.vtt`: WebVTT captions for browser players.
+- `/api/lyrics.txt`: plain text lines in time order, no timestamps.
 
 Open these paths on the local browser URL printed by Verso (default
 `http://127.0.0.1:17653/`). These endpoints do not write files or upload lyrics.
