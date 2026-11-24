@@ -35,3 +35,9 @@ Source: `src/lyrics/` and `src/nowplaying.js`.
 
 Everything after step 2 is pure functions with no network and no
 credentials, covered by `test/parse.test.js`.
+
+Helpers in `lyrics/lrcparse.js` that work on a parsed model without
+changing it: `shiftLines(model, deltaMs)` moves every time (never below 0),
+`modelDurationMs(model)` returns the end of the last timed line, and
+`metaLengthMs(meta)` reads the `[length:]` tag. `lyrics/active.js` also has
+`findNextLine` and `lineProgress` for look-ahead and per-line progress.
