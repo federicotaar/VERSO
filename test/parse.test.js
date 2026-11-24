@@ -256,3 +256,12 @@ assert.strictEqual(parseTtml('<p begin="61:05" end="62:00">long minutes</p>').li
  assert.strictEqual(toVtt({lines:[]}),'WEBVTT\n\n');
  assert.strictEqual(toVtt({unsynced:true,lines:[{startMs:1,endMs:2,text:'x'}]}),'WEBVTT\n\n');
 }
+
+{
+ const {metaLengthMs,parseLrc:p}=require('../src/lyrics/lrcparse');
+ assert.strictEqual(metaLengthMs(p('[length: 03:45]\n[00:01.00]a').meta),225000);
+ assert.strictEqual(metaLengthMs(p('[length: 3:05.5]\n[00:01.00]a').meta),185500);
+ assert.strictEqual(metaLengthMs({length:'soon'}),null);
+ assert.strictEqual(metaLengthMs({}),null);
+ assert.strictEqual(metaLengthMs(null),null);
+}
