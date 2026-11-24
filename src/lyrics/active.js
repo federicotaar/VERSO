@@ -15,4 +15,12 @@ function findActiveLine(lines, positionMs) {
   return ans;
 }
 
-module.exports = { findActiveLine };
+// Index of the first line that starts after positionMs, or -1 when none remain.
+function findNextLine(lines, positionMs) {
+  if (!Array.isArray(lines) || !Number.isFinite(positionMs)) return -1;
+  const active = findActiveLine(lines, positionMs);
+  const next = active + 1;
+  return next < lines.length ? next : -1;
+}
+
+module.exports = { findActiveLine, findNextLine };
