@@ -289,3 +289,10 @@ assert.strictEqual(parseTtml('<p begin="61:05" end="62:00">long minutes</p>').li
  assert.strictEqual(modelDurationMs({lines:[]}),0);
  assert.strictEqual(modelDurationMs(undefined),0);
 }
+
+{
+ const {toTxt}=require('../src/lyrics/lrcparse');
+ assert.strictEqual(toTxt({lines:[{startMs:2000,endMs:3000,text:'second'},{startMs:1000,endMs:2000,text:'first\nline'}]}),'first line\nsecond');
+ assert.strictEqual(toTxt({unsynced:true,lines:[{startMs:1,endMs:2,text:'x'}]}),'');
+ assert.strictEqual(toTxt(null),'');
+}
