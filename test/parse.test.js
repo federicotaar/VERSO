@@ -317,3 +317,9 @@ assert.strictEqual(parseTtml('<p begin="61:05" end="62:00">long minutes</p>').li
  assert.deepStrictEqual(out,[{startMs:1000,endMs:2001,text:'hi there'}]);
  assert.strictEqual(toJson({unsynced:true,lines:[]}),'[]');
 }
+
+{
+ const {toCsv}=require('../src/lyrics/lrcparse');
+ assert.strictEqual(toCsv({lines:[{startMs:0,endMs:1500,text:'say "hi", ok'}]}),'startMs,endMs,text\n0,1500,"say ""hi"", ok"');
+ assert.strictEqual(toCsv(undefined),'startMs,endMs,text');
+}
