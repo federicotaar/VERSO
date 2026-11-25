@@ -402,3 +402,11 @@ assert.strictEqual(parseTtml('<p begin="61:05" end="62:00">long minutes</p>').li
  assert.deepStrictEqual(linesBetween(model,2000,1000),[]);
  assert.deepStrictEqual(linesBetween(model,NaN,5),[]);
 }
+
+{
+ const {uniqueWordCount}=require('../src/lyrics/lrcparse');
+ const model={lines:[{startMs:0,endMs:1000,text:'Hello, hello world!'},{startMs:1000,endMs:2000,text:'World, again'}]};
+ assert.strictEqual(uniqueWordCount(model),3);
+ assert.strictEqual(uniqueWordCount({lines:[]}),0);
+ assert.strictEqual(uniqueWordCount({lines:[{startMs:0,endMs:1000,text:'...'}]}),0);
+}
