@@ -6,6 +6,7 @@
 - LRCLIB lookups trim whitespace around title, artist and album.
 - Lyric helpers: `shiftLines`, `modelDurationMs`, `metaLengthMs`, `findNextLine`, `lineProgress`.
 - More lyric helpers: `lineCount`, `wordCount`, `toJson`, `toCsv`, `scaleLines`, `lineGaps`, `instrumentalBreaks`, `firstLineMs`, `lastLineMs`, `dedupeConsecutiveLines`.
+- Lyric analysis: `averageLineMs`, `longestLine`, `trimLeadingSilence`, `linesBetween`, `uniqueWordCount`, `wordsPerMinute`.
 - Lyrics cache exposes `cacheSize` and `clearCache`; the demo track is frozen.
 
 ## 0.1.8 (2026-11-19)
