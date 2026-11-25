@@ -358,3 +358,13 @@ assert.strictEqual(parseTtml('<p begin="61:05" end="62:00">long minutes</p>').li
  assert.strictEqual(firstLineMs({lines:[]}),null);
  assert.strictEqual(lastLineMs(undefined),null);
 }
+
+{
+ const {dedupeConsecutiveLines}=require('../src/lyrics/lrcparse');
+ const model={lines:[{startMs:0,endMs:1000,text:'la'},{startMs:1000,endMs:2000,text:'la'},{startMs:5000,endMs:6000,text:'la'},{startMs:6000,endMs:7000,text:'x'}]};
+ const out=dedupeConsecutiveLines(model);
+ assert.strictEqual(out.lines.length,3);
+ assert.deepStrictEqual([out.lines[0].startMs,out.lines[0].endMs],[0,2000]);
+ assert.strictEqual(model.lines.length,4);
+ assert.strictEqual(dedupeConsecutiveLines(null),null);
+}
