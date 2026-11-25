@@ -223,3 +223,11 @@ function dedupeConsecutiveLines(model) {
   return { ...model, lines: out };
 }
 module.exports.dedupeConsecutiveLines = dedupeConsecutiveLines;
+
+// Mean duration of the exportable lines in ms (rounded), or null when there are none.
+function averageLineMs(model) {
+  const lines = exportableLines(model);
+  if (!lines.length) return null;
+  return Math.round(lines.reduce((n, l) => n + (l.endMs - l.startMs), 0) / lines.length);
+}
+module.exports.averageLineMs = averageLineMs;
