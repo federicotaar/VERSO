@@ -334,3 +334,10 @@ assert.strictEqual(parseTtml('<p begin="61:05" end="62:00">long minutes</p>').li
  assert.strictEqual(scaleLines(base,0),base);
  assert.strictEqual(scaleLines(base,NaN),base);
 }
+
+{
+ const {lineGaps}=require('../src/lyrics/lrcparse');
+ const model={lines:[{startMs:0,endMs:1000,text:'a'},{startMs:4000,endMs:5000,text:'b'},{startMs:4500,endMs:6000,text:'c'}]};
+ assert.deepStrictEqual(lineGaps(model),[3000,0]);
+ assert.deepStrictEqual(lineGaps({lines:[{startMs:0,endMs:1000,text:'a'}]}),[]);
+}
