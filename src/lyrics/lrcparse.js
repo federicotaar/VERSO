@@ -269,3 +269,11 @@ function uniqueWordCount(model) {
   return seen.size;
 }
 module.exports.uniqueWordCount = uniqueWordCount;
+
+// Words sung per minute between the first and last exportable line, or null if too short to say.
+function wordsPerMinute(model) {
+  const first = firstLineMs(model), last = lastLineMs(model);
+  if (first === null || last === null || last <= first) return null;
+  return Math.round(wordCount(model) / ((last - first) / 60000));
+}
+module.exports.wordsPerMinute = wordsPerMinute;
