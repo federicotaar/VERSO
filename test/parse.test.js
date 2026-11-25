@@ -323,3 +323,14 @@ assert.strictEqual(parseTtml('<p begin="61:05" end="62:00">long minutes</p>').li
  assert.strictEqual(toCsv({lines:[{startMs:0,endMs:1500,text:'say "hi", ok'}]}),'startMs,endMs,text\n0,1500,"say ""hi"", ok"');
  assert.strictEqual(toCsv(undefined),'startMs,endMs,text');
 }
+
+{
+ const {scaleLines}=require('../src/lyrics/lrcparse');
+ const base={lines:[{startMs:1000,endMs:2000,text:'a',words:[{text:'a',startMs:1000,endMs:2000}]}]};
+ const fast=scaleLines(base,0.5);
+ assert.strictEqual(fast.lines[0].startMs,500);
+ assert.strictEqual(fast.lines[0].words[0].endMs,1000);
+ assert.strictEqual(base.lines[0].startMs,1000);
+ assert.strictEqual(scaleLines(base,0),base);
+ assert.strictEqual(scaleLines(base,NaN),base);
+}
