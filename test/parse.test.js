@@ -310,3 +310,10 @@ assert.strictEqual(parseTtml('<p begin="61:05" end="62:00">long minutes</p>').li
  assert.strictEqual(wordCount({lines:[]}),0);
  assert.strictEqual(wordCount(null),0);
 }
+
+{
+ const {toJson}=require('../src/lyrics/lrcparse');
+ const out=JSON.parse(toJson({lines:[{startMs:1000.4,endMs:2000.6,text:'hi\nthere'}]}));
+ assert.deepStrictEqual(out,[{startMs:1000,endMs:2001,text:'hi there'}]);
+ assert.strictEqual(toJson({unsynced:true,lines:[]}),'[]');
+}
