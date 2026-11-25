@@ -410,3 +410,10 @@ assert.strictEqual(parseTtml('<p begin="61:05" end="62:00">long minutes</p>').li
  assert.strictEqual(uniqueWordCount({lines:[]}),0);
  assert.strictEqual(uniqueWordCount({lines:[{startMs:0,endMs:1000,text:'...'}]}),0);
 }
+
+{
+ const {wordsPerMinute}=require('../src/lyrics/lrcparse');
+ const model={lines:[{startMs:0,endMs:30000,text:'one two three four'},{startMs:30000,endMs:60000,text:'five six'}]};
+ assert.strictEqual(wordsPerMinute(model),6);
+ assert.strictEqual(wordsPerMinute({lines:[]}),null);
+}
