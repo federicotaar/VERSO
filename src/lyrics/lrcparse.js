@@ -152,3 +152,9 @@ function wordCount(model) {
   return exportableLines(model).reduce((n, l) => n + l.text.split(/\s+/).filter(Boolean).length, 0);
 }
 module.exports.wordCount = wordCount;
+
+// Pretty JSON of the exportable lines: [{startMs, endMs, text}].
+function toJson(model) {
+  return JSON.stringify(exportableLines(model), null, 2);
+}
+module.exports.toJson = toJson;
