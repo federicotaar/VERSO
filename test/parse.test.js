@@ -382,3 +382,14 @@ assert.strictEqual(parseTtml('<p begin="61:05" end="62:00">long minutes</p>').li
  assert.strictEqual(longestLine(model).text,'b');
  assert.strictEqual(longestLine({lines:[]}),null);
 }
+
+{
+ const {trimLeadingSilence,firstLineMs}=require('../src/lyrics/lrcparse');
+ const model={lines:[{startMs:5000,endMs:6000,text:'a'},{startMs:7000,endMs:8000,text:'b'}]};
+ const out=trimLeadingSilence(model);
+ assert.strictEqual(firstLineMs(out),0);
+ assert.strictEqual(out.lines[1].startMs,2000);
+ assert.strictEqual(model.lines[0].startMs,5000);
+ assert.strictEqual(trimLeadingSilence(null),null);
+ assert.strictEqual(trimLeadingSilence({lines:[{startMs:0,endMs:500,text:'a'}]}).lines[0].startMs,0);
+}
