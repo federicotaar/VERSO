@@ -207,3 +207,19 @@ function lastLineMs(model) {
 }
 module.exports.firstLineMs = firstLineMs;
 module.exports.lastLineMs = lastLineMs;
+
+// Merges back-to-back lines with identical text (e.g. doubled by two sources) into one span.
+function dedupeConsecutiveLines(model) {
+  if (!model || !Array.isArray(model.lines)) return model;
+  const out = [];
+  for (const l of model.lines) {
+    const prev = out[out.length - 1];
+    if (prev && l && prev.text === l.text && Number.isFinite(l.startMs) && Number.isFinite(prev.endMs) && l.startMs <= prev.endMs) {
+      if (Number.isFinite(l.endMs) && l.endMs > prev.endMs) prev.endMs = l.endMs;
+    } else {
+      out.push({ ...l });
+    }
+  }
+  return { ...model, lines: out };
+}
+module.exports.dedupeConsecutiveLines = dedupeConsecutiveLines;
