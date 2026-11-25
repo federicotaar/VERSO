@@ -146,3 +146,9 @@ function lineCount(model) {
   return exportableLines(model).length;
 }
 module.exports.lineCount = lineCount;
+
+// Whitespace-separated words across the exportable lines.
+function wordCount(model) {
+  return exportableLines(model).reduce((n, l) => n + l.text.split(/\s+/).filter(Boolean).length, 0);
+}
+module.exports.wordCount = wordCount;
