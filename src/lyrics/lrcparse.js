@@ -184,3 +184,14 @@ function lineGaps(model) {
   return gaps;
 }
 module.exports.lineGaps = lineGaps;
+
+// Breaks of at least minMs (default 8s): [{startMs, endMs}] between two lyric lines.
+function instrumentalBreaks(model, minMs = 8000) {
+  const lines = exportableLines(model);
+  const breaks = [];
+  for (let i = 0; i + 1 < lines.length; i++) {
+    if (lines[i + 1].startMs - lines[i].endMs >= minMs) breaks.push({ startMs: lines[i].endMs, endMs: lines[i + 1].startMs });
+  }
+  return breaks;
+}
+module.exports.instrumentalBreaks = instrumentalBreaks;
