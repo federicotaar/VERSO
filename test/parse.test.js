@@ -375,3 +375,10 @@ assert.strictEqual(parseTtml('<p begin="61:05" end="62:00">long minutes</p>').li
  assert.strictEqual(averageLineMs({lines:[]}),null);
  assert.strictEqual(averageLineMs({unsynced:true,lines:[{startMs:0,endMs:1000,text:'a'}]}),null);
 }
+
+{
+ const {longestLine}=require('../src/lyrics/lrcparse');
+ const model={lines:[{startMs:0,endMs:1000,text:'a'},{startMs:1000,endMs:4000,text:'b'},{startMs:4000,endMs:7000,text:'c'}]};
+ assert.strictEqual(longestLine(model).text,'b');
+ assert.strictEqual(longestLine({lines:[]}),null);
+}
