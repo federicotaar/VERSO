@@ -231,3 +231,13 @@ function averageLineMs(model) {
   return Math.round(lines.reduce((n, l) => n + (l.endMs - l.startMs), 0) / lines.length);
 }
 module.exports.averageLineMs = averageLineMs;
+
+// The exportable line with the longest duration (first one wins a tie), or null.
+function longestLine(model) {
+  let best = null;
+  for (const l of exportableLines(model)) {
+    if (!best || l.endMs - l.startMs > best.endMs - best.startMs) best = l;
+  }
+  return best;
+}
+module.exports.longestLine = longestLine;
