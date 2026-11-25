@@ -165,3 +165,13 @@ function toCsv(model) {
   return ['startMs,endMs,text', ...rows].join('\n');
 }
 module.exports.toCsv = toCsv;
+
+// Copy of the model with every line and word time multiplied by factor (> 0).
+function scaleLines(model, factor) {
+  if (!model || !Array.isArray(model.lines) || !Number.isFinite(factor) || factor <= 0) return model;
+  const mv = ms => (Number.isFinite(ms) ? Math.round(ms * factor) : ms);
+  return { ...model, lines: model.lines.map(l => ({ ...l,
+    startMs: mv(l.startMs), endMs: mv(l.endMs),
+    words: Array.isArray(l.words) ? l.words.map(w => ({ ...w, startMs: mv(w.startMs), endMs: mv(w.endMs) })) : l.words })) };
+}
+module.exports.scaleLines = scaleLines;
