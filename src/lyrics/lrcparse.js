@@ -158,3 +158,10 @@ function toJson(model) {
   return JSON.stringify(exportableLines(model), null, 2);
 }
 module.exports.toJson = toJson;
+
+// CSV with a header row; text is always quoted and embedded quotes are doubled.
+function toCsv(model) {
+  const rows = exportableLines(model).map(l => `${l.startMs},${l.endMs},"${l.text.replace(/"/g, '""')}"`);
+  return ['startMs,endMs,text', ...rows].join('\n');
+}
+module.exports.toCsv = toCsv;
