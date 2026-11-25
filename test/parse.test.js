@@ -303,3 +303,10 @@ assert.strictEqual(parseTtml('<p begin="61:05" end="62:00">long minutes</p>').li
  assert.strictEqual(lineCount({unsynced:true,lines:[{startMs:0,endMs:1000,text:'a'}]}),0);
  assert.strictEqual(lineCount(undefined),0);
 }
+
+{
+ const {wordCount}=require('../src/lyrics/lrcparse');
+ assert.strictEqual(wordCount({lines:[{startMs:0,endMs:1000,text:'one  two'},{startMs:1000,endMs:2000,text:'three'}]}),3);
+ assert.strictEqual(wordCount({lines:[]}),0);
+ assert.strictEqual(wordCount(null),0);
+}
