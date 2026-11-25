@@ -256,3 +256,16 @@ function linesBetween(model, fromMs, toMs) {
   return exportableLines(model).filter(l => l.startMs < toMs && l.endMs > fromMs);
 }
 module.exports.linesBetween = linesBetween;
+
+// Distinct words (case-insensitive, punctuation stripped) across the exportable lines.
+function uniqueWordCount(model) {
+  const seen = new Set();
+  for (const l of exportableLines(model)) {
+    for (const w of l.text.toLowerCase().split(/\s+/)) {
+      const clean = w.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '');
+      if (clean) seen.add(clean);
+    }
+  }
+  return seen.size;
+}
+module.exports.uniqueWordCount = uniqueWordCount;
