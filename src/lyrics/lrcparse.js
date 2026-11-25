@@ -241,3 +241,11 @@ function longestLine(model) {
   return best;
 }
 module.exports.longestLine = longestLine;
+
+// Moves every time earlier so the first exportable line starts at 0.
+function trimLeadingSilence(model) {
+  const first = firstLineMs(model);
+  if (!first) return model;
+  return shiftLines(model, -first);
+}
+module.exports.trimLeadingSilence = trimLeadingSilence;
