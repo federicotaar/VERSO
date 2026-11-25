@@ -140,3 +140,9 @@ function toTxt(model) {
   return exportableLines(model).map(l => l.text).join('\n');
 }
 module.exports.toTxt = toTxt;
+
+// Number of lines that would be exported (finite, non-empty, timed).
+function lineCount(model) {
+  return exportableLines(model).length;
+}
+module.exports.lineCount = lineCount;
