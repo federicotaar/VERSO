@@ -175,3 +175,12 @@ function scaleLines(model, factor) {
     words: Array.isArray(l.words) ? l.words.map(w => ({ ...w, startMs: mv(w.startMs), endMs: mv(w.endMs) })) : l.words })) };
 }
 module.exports.scaleLines = scaleLines;
+
+// Gaps in ms between the end of each exportable line and the start of the next one.
+function lineGaps(model) {
+  const lines = exportableLines(model);
+  const gaps = [];
+  for (let i = 0; i + 1 < lines.length; i++) gaps.push(Math.max(0, lines[i + 1].startMs - lines[i].endMs));
+  return gaps;
+}
+module.exports.lineGaps = lineGaps;
