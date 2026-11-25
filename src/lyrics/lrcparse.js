@@ -195,3 +195,15 @@ function instrumentalBreaks(model, minMs = 8000) {
   return breaks;
 }
 module.exports.instrumentalBreaks = instrumentalBreaks;
+
+// Start of the first exportable line and end of the last one, or null when none.
+function firstLineMs(model) {
+  const lines = exportableLines(model);
+  return lines.length ? lines[0].startMs : null;
+}
+function lastLineMs(model) {
+  const lines = exportableLines(model);
+  return lines.length ? Math.max(...lines.map(l => l.endMs)) : null;
+}
+module.exports.firstLineMs = firstLineMs;
+module.exports.lastLineMs = lastLineMs;
