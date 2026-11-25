@@ -393,3 +393,12 @@ assert.strictEqual(parseTtml('<p begin="61:05" end="62:00">long minutes</p>').li
  assert.strictEqual(trimLeadingSilence(null),null);
  assert.strictEqual(trimLeadingSilence({lines:[{startMs:0,endMs:500,text:'a'}]}).lines[0].startMs,0);
 }
+
+{
+ const {linesBetween}=require('../src/lyrics/lrcparse');
+ const model={lines:[{startMs:0,endMs:1000,text:'a'},{startMs:1000,endMs:2000,text:'b'},{startMs:2000,endMs:3000,text:'c'}]};
+ assert.deepStrictEqual(linesBetween(model,500,1500).map(l=>l.text),['a','b']);
+ assert.deepStrictEqual(linesBetween(model,1000,2000).map(l=>l.text),['b']);
+ assert.deepStrictEqual(linesBetween(model,2000,1000),[]);
+ assert.deepStrictEqual(linesBetween(model,NaN,5),[]);
+}
