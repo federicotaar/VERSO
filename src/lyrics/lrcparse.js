@@ -249,3 +249,10 @@ function trimLeadingSilence(model) {
   return shiftLines(model, -first);
 }
 module.exports.trimLeadingSilence = trimLeadingSilence;
+
+// Exportable lines that overlap the window [fromMs, toMs).
+function linesBetween(model, fromMs, toMs) {
+  if (!Number.isFinite(fromMs) || !Number.isFinite(toMs) || toMs <= fromMs) return [];
+  return exportableLines(model).filter(l => l.startMs < toMs && l.endMs > fromMs);
+}
+module.exports.linesBetween = linesBetween;
